@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <title>Ticket #{{ticket.id}} — Quinndustries</title>
+        <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;600&display=swap" rel="stylesheet"/>
+        <link href="/static/ticketstyles.css" rel="stylesheet">
+    </head>
+    <body>
+        {% if ticket.status == "unassigned" %}
+        <a class="return-arrow" href="/tickets/view#unassigned">← Back to all tickets</a>
+        {% elif ticket.status == "active" %}
+        <a class="return-arrow" href="/tickets/view#active">← Back to all tickets</a>
+        {% else %}
+        <a class="return-arrow" href="/tickets/view#resolved">← Back to all tickets</a>
+        {% endif %}
+         <div class="ticket-card ticket-card-expanded">
+          <p class="id-badge">ID: {{ ticket.id }}</p>
+          <div class="ticket-header">
+            <p class="badge">{{ ticket.issue_type }}</p>
+            {% if ticket.status == "active" %}
+            <div class="priority priority-{{ ticket.priority }}" title="change the priority">{{ ticket.priority }}</div>
+            {% else %}
+            <div class="priority priority-inactive">{{ ticket.status }}</div>
+            {% endif %}
+          </div>
+          <h3>{{ ticket.summary }}</h3>
+          <p class="ticket-meta">{{ ticket.ticketer_name }} — {{ ticket.email }}  <time class="date">{{ ticket.submission_date }}</time></p>
+          <p class="ticket-description">{{ ticket.description }}</p>
+        </div>
+        {% if ticket.status == "unassigned" %}
+        <div id="btn-container">
+            <button id="claim-btn" class="btn" onclick="document.getElementById('claim-dialog').showModal()">Claim Ticket</button>
+        </div>
+        {% elif ticket.status == "active" %}
+        <div id="btn-container">
+            <button id="resolve-btn" class="btn" onclick="document.getElementById('resolution-dialog').showModal()">Resolve Ticket</button>
+            <button id="update-btn" class="btn" onclick="document.getElementById('priority-dialog').showModal()">Update Priority</button>
+            
+        </div>
+        {% else %}
+        <section id="resolution-explanation-container">
+            <h2>Resolution Details</h2>
+            <p id="resolver-name">Resolved By: {{ ticket.resolved_by }}</p>
+            <p id="resolution-explanation">{{ ticket.resolution_details }}</p>
+        </section>
+        {% endif %}
+
+        {% if related_tickets %}
+        <div id="related-tickets-container">
+            <h2>These tickets might be similar:</h2>
+            <section class="ticket-list list-view">
+            {% for related_ticket in related_tickets %}
+                <a href="/tickets/view/{{related_ticket.id}}">
+                <div class="ticket-card">
+                    <p class="id-badge">ID: {{ related_ticket.id }}</p>
+                    <div class="ticket-header">
+                    <p class="badge">{{ related_ticket.issue_type }}</p>
+                    
+                    <div class="priority priority-inactive">{{ related_ticket.status }}</div>
+                    
+                    </div>
+                    <h3>{{ related_ticket.summary }}</h3>
+                    <p class="ticket-meta">{{ related_ticket.ticketer_name }} — {{ related_ticket.email }}</p>
+                    <p class="ticket-description">{{ related_ticket.description | truncate(240) }}</p>
+                </div>
+                </a>
+            {% endfor %}
+        </section>
+        </div>
+            
+        {% endif %}
+
+        <dialog id="claim-dialog">
+            <h3>Claim this ticket & Select Priority</h3>
+            <div class="priority">
+                <div class="form-group">
+                    <div class="badge-row">
+                        <input id="claim-dialog-low" class="dialog-priority-low-btn" type="radio" name="dialog-priority" value="low">
+                        <label for="claim-dialog-low">Low</label>
+                        <input id="claim-dialog-medium" class="dialog-priority-medium-btn" type="radio" name="dialog-priority" value="medium">
+                        <label for="claim-dialog-medium">Medium</label>
+                        <input id="claim-dialog-high" class="dialog-priority-high-btn" type="radio" name="dialog-priority" value="high">
+                        <label for="claim-dialog-high">High</label>
+                        <input id="claim-dialog-critical" class="dialog-priority-critical-btn" type="radio" name="dialog-priority" value="critical">
+                        <label for="claim-dialog-critical">Critical</label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="dialog-btn-container">
+                <button id="claim-cancel-btn" class="btn" onclick="document.getElementById('claim-dialog').close()">Cancel</button>
+                <button id="claim-confirm-btn" class="btn" onclick="claimTicket({{ ticket.id }})">Claim</button>
+            </div>
+        </dialog>
+
+        <dialog id="priority-dialog">
+            <h3>Update Priority</h3>
+            <div class="priority">
+                <div class="form-group">
+                    <div class="badge-row">
+                        <input id="priority-dialog-low" class="dialog-priority-low-btn" type="radio" name="dialog-priority" value="low">
+                        <label for="priority-dialog-low">Low</label>
+                        <input id="priority-dialog-medium" class="dialog-priority-medium-btn" type="radio" name="dialog-priority" value="medium">
+                        <label for="priority-dialog-medium">Medium</label>
+                        <input id="priority-dialog-high" class="dialog-priority-high-btn" type="radio" name="dialog-priority" value="high">
+                        <label for="priority-dialog-high">High</label>
+                        <input id="priority-dialog-critical" class="dialog-priority-critical-btn" type="radio" name="dialog-priority" value="critical">
+                        <label for="priority-dialog-critical">Critical</label>
+                    </div>
+                </div>
+            </div>
+            <div class="dialog-btn-container">
+                <button id="priority-cancel-btn" class="btn" onclick="document.getElementById('priority-dialog').close()">Cancel</button>
+                <button id="priority-confirm-btn" class="btn" onclick="updatePriority({{ ticket.id }})">Confirm</button>
+            </div>
+        </dialog>
+
+        <dialog id="resolution-dialog">
+            <h3>Resolution Explanation</h3>
+            <textarea id="resolution-textarea" rows="15" placeholder="User issue was fixed by ..."></textarea>
+            
+            <div id="dialog-btn-container">
+                <button id="resolve-cancel-btn" class="btn" onclick="document.getElementById('resolution-dialog').close()">Cancel</button>
+                <button id="resolve-confirm-btn" class="btn" onclick="resolveTicket({{ ticket.id }})">Resolve</button>
+            </div>
+        </dialog>
+
+        <script>
+            async function claimTicket(id) {
+            const priority = document.querySelector('input[name="dialog-priority"]:checked').value
+            const response = await fetch(`/tickets/${id}`,{
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'same-origin',
+                body: JSON.stringify({"new_status": "active", "priority": priority}),
+             });
+            if(response.ok) {
+                document.getElementById('claim-dialog').close();
+                window.location.href = '/tickets/view#active';
+            }
+            else{
+                const data = await response.json();
+                console.error('Error' , data.error);
+            }
+        }
+
+        async function resolveTicket(id) {
+            const resolution_details = document.getElementById('resolution-textarea').value.trim();
+            if(!resolution_details) {
+                alert('Please provide resolution details before resolving the ticket.');
+                return;
+            }
+            const response = await fetch(`/tickets/${id}`,{
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'same-origin',
+                body: JSON.stringify({"resolution_details": resolution_details, "new_status": "resolved"}),
+             });
+            if(response.ok) {
+                document.getElementById('resolution-dialog').close();
+                window.location.href = '/tickets/view#resolved';
+            }
+            else{
+                const data = await response.json();
+                console.error('Error' , data.error);
+            }
+        }
+
+        async function updatePriority(id) {
+            const priority = document.querySelector('input[name="dialog-priority"]:checked').value
+            const response = await fetch(`/tickets/${id}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({"priority" : priority}),
+                credentials: 'same-origin'
+            });
+            if(response.ok)
+            {
+                document.getElementById('priority-dialog').close();
+                window.location.reload();
+            }
+            else{
+                const data = await response.json();
+                console.error('Error:', data.error);
+            }
+        }
+        </script>
+    </body>
+
+    
+</html>

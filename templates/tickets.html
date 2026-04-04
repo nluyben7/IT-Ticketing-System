@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Quinndustries — All Tickets</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;600&display=swap" rel="stylesheet"/>
+  <link href="/static/ticketstyles.css" rel="stylesheet">
+</head>
+<body>
+  <h1 id="active-page-title">Active Tickets</h1>
+  <h1 id="resolved-page-title" style="display: none;">Resolved Tickets</h1>
+  <h1 id="unassigned-page-title" style="display: none;">Unassigned Tickets</h1>
+  
+  <nav id="ticket-list-navbar">
+    <a class="return-arrow" onclick="logout()">← Log Out</a>
+    <div id="navbar-right">
+      <button id="toggle-display-btn" class="toggle btn" onclick="toggleLayout()" ><span id="toggle-icon">☰</span></button>
+      <button id="unassigned-btn" class="btn" onclick="showTab('unassigned')">View Unassigned Tickets</button>
+      <button id="active-btn" class="btn" onclick="showTab('active')" style="display: none;">View Active Tickets</button>
+      <button id="resolved-btn" class="btn" onclick="showTab('resolved')">View Resolved Tickets</button>
+    </div>
+  </nav>
+  
+  
+  <section id="unassigned-ticket-list" class="ticket-list grid-view" style="display: none;">
+    {% if tickets %}
+      {% for ticket in tickets if ticket.status == "unassigned" %}
+        <a href="/tickets/view/{{ticket.id}}">
+          <div class="ticket-card">
+            <p class="id-badge">ID: {{ ticket.id }}</p>
+            <div class="ticket-header">
+              <p class="badge">{{ ticket.issue_type }}</p>
+              
+              <div class="priority priority-inactive">{{ ticket.status }}</div>
+              
+            </div>
+            <h3>{{ ticket.summary }}</h3>
+            <p class="ticket-meta">{{ ticket.ticketer_name }} — {{ ticket.email }}</p>
+            <p class="ticket-description">{{ ticket.description | truncate(240) }}</p>
+          </div>
+        </a>
+      {% endfor %}
+    {% else %}
+      <p>No tickets yet.</p>
+    {% endif %}
+  </section>
+
+  <section id="active-ticket-list" class="ticket-list grid-view">
+    {% if tickets %}
+      {% for ticket in tickets if ticket.status == "active" %}
+        <a href="/tickets/view/{{ticket.id}}">
+          <div class="ticket-card">
+            <p class="id-badge">ID: {{ ticket.id }}</p>
+            <div class="ticket-header">
+              <p class="badge">{{ ticket.issue_type }}</p>
+              
+              <div class="priority priority-{{ ticket.priority }}">{{ ticket.priority }}</div>
+              
+            </div>
+            <h3>{{ ticket.summary }}</h3>
+            <p class="ticket-meta">{{ ticket.ticketer_name }} — {{ ticket.email }}</p>
+            <p class="ticket-description">{{ ticket.description | truncate(240) }}</p>
+          </div>
+        </a>
+      {% endfor %}
+    {% else %}
+      <p>No tickets yet.</p>
+    {% endif %}
+  </section>
+
+  <section id="resolved-ticket-list" class="ticket-list grid-view" style="display: none">
+    {% if tickets %}
+      {% for ticket in tickets if ticket.status == "resolved" %}
+        <a href="/tickets/view/{{ticket.id}}">
+          <div class="ticket-card">
+            <p class="id-badge">ID: {{ ticket.id }}</p>
+            <div class="ticket-header">
+              <p class="badge">{{ ticket.issue_type }}</p>
+              
+              <div class="priority priority-inactive">{{ ticket.status }}</div>
+              
+            </div>
+            <h3>{{ ticket.summary }}</h3>
+            <p class="ticket-meta">{{ ticket.ticketer_name }} — {{ ticket.email }}</p>
+            <p class="ticket-description">{{ ticket.description | truncate(240) }}</p>
+          </div>
+        </a>
+      {% endfor %}
+    {% else %}
+      <p>No tickets yet.</p>
+    {% endif %}
+  </section>
+
+  
+
+  <script>
+    function logout() {
+      fetch('/logout', { method: 'POST', credentials: 'same-origin' })
+        .then(response => {
+          if (response.ok) {
+            window.location.href = '/';
+          } else {
+            alert('Logout failed. Please try again.');
+          }
+        })
+        .catch(error => {
+          console.error('Error during logout:', error);
+          alert('An error occurred. Please try again.');
+        });
+    }
+
+    function showTab(tab) {
+          document.getElementById('active-ticket-list').style.display = tab === 'active' ? 'grid' : 'none';
+          document.getElementById('resolved-ticket-list').style.display = tab === 'resolved' ? 'grid' : 'none';
+          document.getElementById('unassigned-ticket-list').style.display = tab === 'unassigned' ? 'grid' : 'none';
+
+          document.getElementById('unassigned-btn').style.display = tab === 'unassigned' ? 'none' : 'inline-block';
+          document.getElementById('active-btn').style.display = tab === 'active' ? 'none' : 'inline-block';
+          document.getElementById('resolved-btn').style.display = tab === 'resolved' ? 'none' : 'inline-block';
+
+          document.getElementById('active-page-title').style.display = tab === 'active' ? 'block' : 'none';
+          document.getElementById('resolved-page-title').style.display = tab === 'resolved' ? 'block' : 'none';
+          document.getElementById('unassigned-page-title').style.display = tab === 'unassigned' ? 'block' : 'none';
+    }
+
+    function toggleLayout() { 
+        document.querySelectorAll('.ticket-list').forEach(list => {
+          list.classList.toggle('grid-view');
+            list.classList.toggle('list-view');
+        });
+        const icon = document.getElementById('toggle-icon');
+        const isListView = document.querySelector('.ticket-list').classList.contains('list-view');
+        icon.textContent = isListView ? '⊞' : '☰';
+    }
+
+    if (window.location.hash === '#unassigned') {
+        showTab('unassigned');
+    } else if (window.location.hash === '#resolved') {
+        showTab('resolved');
+    } else {
+        showTab('active');  // default
+    }
+  </script>
+</body>
+</html>

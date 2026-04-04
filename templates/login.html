@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Login</title>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;600&display=swap" rel="stylesheet"/>
+    <link href="/static/loginstyles.css" rel="stylesheet">
+    
+</head>
+<body>
+    <div class="auth-card" role="main">
+        <h1>Sign in</h1>
+        <p>Enter your username and password to continue</p>
+        <form id="login-form" onsubmit="event.preventDefault(); login();">
+            <div class="field" aria-hidden="false">
+                <input id="username" name="username" type="text" autocomplete="username" placeholder="Username" required />
+            </div>
+            <div class="field" aria-hidden="false">
+                <input id="password" name="password" type="password" placeholder="Password" required autofocus />
+                <button type="button" class="toggle" id="togglePwd">Show</button>
+            </div>
+            <p id="login-error" style="display:none; color:red;">Incorrect password.</p>
+            <div class="meta">
+                <span></span>
+                <button id="submit-btn" type="button" onclick="login()">Unlock</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        (function(){
+            const pwd = document.getElementById('password');
+            const btn = document.getElementById('togglePwd');
+            btn.addEventListener('click', ()=> {
+                const isPwd = pwd.type === 'password';
+                pwd.type = isPwd ? 'text' : 'password';
+                btn.textContent = isPwd ? 'Hide' : 'Show';
+            });
+        })();
+
+
+        async function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const response = await fetch('/login', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({username: username, password: password}),
+                credentials: 'same-origin'
+            });
+            if (response.ok) {
+                window.location.href = '/tickets/view';
+            } else {
+                document.getElementById('login-error').style.display = 'block';
+            }
+        }
+    </script>
+</body>
+</html>

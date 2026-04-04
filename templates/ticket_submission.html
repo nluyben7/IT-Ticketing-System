@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>DeskForge — IT Support</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;600&display=swap" rel="stylesheet"/>
+  <link href="/static/styles.css" rel="stylesheet">
+</head>
+<body>
+  <div class="hero"> </div>
+  <h1> Quinndustries IT Ticketing System</h1>
+  
+
+  <section id="ticket-submission">
+
+    <form method="POST" action="/tickets" id="ticket-form">
+
+      <fieldset>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="name-input">Your Name</label>
+            <input id="name-input" type="text" name="ticketer_name" required placeholder="e.g. Jane Doe">
+          </div>
+          <div class="form-group">
+            <label for="email-input">Employee Email</label>
+            <input id="email-input" type="email" name="email" required placeholder="e.g. janedoe@Quinndustries.com">
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <div class="form-group"> 
+          <label for="category-input">Type of Issue</label>
+        <select id="category-input" name="issue_type" required>
+          <option value="">-Select a Category-</option>
+          <option value="hardware">Hardware</option>
+          <option value="software">Software/Applications</option>
+          <option value="printer">Printer</option>
+          <option value="security">Security and Account Access</option>
+          <option value="other">Other</option>
+        </select>
+        </div>
+      </fieldset>
+
+      <!-- <fieldset id="priority">
+        <div class="form-group"> 
+          <label>Priority</label>
+          <div class="badge-row">
+            <input id="priority-low-btn" type="radio" name="priority" value="low" required>
+            <label for="priority-low-btn">Low</label>
+            <input id="priority-medium-btn" type="radio" name="priority" value="medium">
+            <label for="priority-medium-btn">Medium</label>
+            <input id="priority-high-btn" type="radio" name="priority" value="high">
+            <label for="priority-high-btn">High</label>
+            <input id="priority-critical-btn" type="radio" name="priority" value="critical">
+            <label for="priority-critical-btn">Critical</label>
+          </div>
+          <span id="priority-error" style="display:none; color:red; font-size:0.85rem;">
+            Please select a priority level.
+          </span>
+        </div>
+      </fieldset> -->
+
+      <fieldset>
+        <div class="form-group">
+          <label for="summary-input">Short Summary</label>
+          <input id="summary-input" type="text" name="summary" required placeholder="e.g. Cant Print to Library printer">
+        </div>
+        <div class="form-group">
+          <label for="description-input">Problem Description</label>
+          <textarea id="description-input" name="description" required rows="5" cols="70" placeholder="describe what you want to accomplish, what went wrong, and what you've already tried"></textarea>
+        </div>
+      </fieldset>
+
+      <button id="submit-btn">Submit Ticket</button>
+    </form>
+
+  </section>
+  
+
+  <section id="ticket-viewer">
+    <a href="/tickets/view" id="view-tickets-btn">View All Tickets</a>
+  </section>
+
+  <script>
+    document.getElementById('ticket-form').addEventListener('submit', async (e) => {
+      e.preventDefault(); // stop normal form submission
+      const body = {
+          ticketer_name: document.getElementById('name-input').value.trim(),
+          email:         document.getElementById('email-input').value.trim(),
+          issue_type:    document.getElementById('category-input').value,
+          // priority:      document.querySelector('input[name="priority"]:checked')?.value,
+          summary:       document.getElementById('summary-input').value.trim(),
+          description:   document.getElementById('description-input').value.trim(),
+      };
+
+      const response = await fetch('/tickets', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(body)
+          });
+
+      const data = await response.json();
+
+      if (response.ok) {
+          // handle success — e.g. show a confirmation message or redirect
+          console.log('Ticket created:', data);
+      } else {
+          // Flask returned a 400 — show the error to the user
+          console.error('Error:', data.error);
+      }
+      document.getElementById('ticket-form').reset();
+      });
+  </script>
+
+  <!-- <script>
+    const radios = document.querySelectorAll('input[name="priority"]');
+    radios.forEach(radio => {
+        radio.addEventListener('invalid', () => {
+            document.getElementById('priority-error').style.display = 'block';
+        });
+    });
+
+    document.getElementById('ticket-form').addEventListener('submit', () => {
+        document.getElementById('priority-error').style.display = 'none';
+    });
+  </script> -->
+</body>
+</html>
