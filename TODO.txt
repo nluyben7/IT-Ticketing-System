@@ -1,15 +1,12 @@
-- create way to delete/ resolve tickets DONE
-    -interact with tickets on endpoint /tickets/view/<ticket_id> DONE(for priority update)
 - create way to filter tickets by priority/ issue type
--trapezoidal design for orange buttons, maybe
 -"does this affect only you are others also"
--DIFFERENT FRONT AND BACK END
--resolution has solution spot
-
-outside of project:
--send emails to confirm ticket submission and priority changes
 
 
 
-EASY:
--ADD DATE!!!!!!!!!
+
+email notification system DONE
+-NOTE: service rigidly uses 465 TLS security, might update later
+-TODO: implement async mesage queue system
+
+
+Pagination

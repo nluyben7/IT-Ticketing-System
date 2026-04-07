@@ -30,11 +30,11 @@
           <p class="ticket-description">{{ ticket.description }}</p>
         </div>
         {% if ticket.status == "unassigned" %}
-        <div id="btn-container">
+        <div class="btn-container">
             <button id="claim-btn" class="btn" onclick="document.getElementById('claim-dialog').showModal()">Claim Ticket</button>
         </div>
         {% elif ticket.status == "active" %}
-        <div id="btn-container">
+        <div class="btn-container">
             <button id="resolve-btn" class="btn" onclick="document.getElementById('resolution-dialog').showModal()">Resolve Ticket</button>
             <button id="update-btn" class="btn" onclick="document.getElementById('priority-dialog').showModal()">Update Priority</button>
             
@@ -121,7 +121,7 @@
             <h3>Resolution Explanation</h3>
             <textarea id="resolution-textarea" rows="15" placeholder="User issue was fixed by ..."></textarea>
             
-            <div id="dialog-btn-container">
+            <div class="dialog-btn-container">
                 <button id="resolve-cancel-btn" class="btn" onclick="document.getElementById('resolution-dialog').close()">Cancel</button>
                 <button id="resolve-confirm-btn" class="btn" onclick="resolveTicket({{ ticket.id }})">Resolve</button>
             </div>
