@@ -9,7 +9,13 @@
 	<body>
 		<h1>Search Results</h1>
 		<a class="return-arrow" href="/tickets/view#active">← Back to all tickets</a>
-
+    <div id="ticket-list-navbar">
+      <div id="navbar-left"></div>
+      <div id="navbar-right">
+      <button id="toggle-display-btn" class="toggle btn" onclick="toggleLayout()" ><span id="toggle-icon">☰</span></button>
+    </div>
+    </div>
+    
         
     {% if tickets %}
     <section class="ticket-list grid-view">
@@ -40,5 +46,16 @@
       <p>No tickets yet.</p>
     {% endif %}
   
+    <script>
+      function toggleLayout() { 
+        document.querySelectorAll('.ticket-list').forEach(list => {
+          list.classList.toggle('grid-view');
+            list.classList.toggle('list-view');
+        });
+        const icon = document.getElementById('toggle-icon');
+        const isListView = document.querySelector('.ticket-list').classList.contains('list-view');
+        icon.textContent = isListView ? '⊞' : '☰';
+    }
+    </script>
 	</body>
 </html>

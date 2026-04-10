@@ -185,6 +185,21 @@ database = [
         "resolution_date": None,
         "assignment_date": None,
         "submission_date": "Apr 02, 2026  10:00 AM"
+    },
+    {
+    "id": 9999,
+    "ticketer_name": "John Smith",
+    "email": "janedoe@quinndustries.com",
+    "issue_type": "Software",
+    "priority": "high",
+    "summary": "office printer on floor 5 is jammed",
+    "description": "bugger is tricky, innit bro?",
+    "status": "unassigned",
+    "resolution_details": None,
+    "specialist_assigned": None,
+    "submission_date": "2024-06-01T10:00:00Z",
+    "assignment_date": None,
+    "resolution_date": None
     }
 ]
 
