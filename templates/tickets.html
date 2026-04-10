@@ -11,15 +11,53 @@
   <h1 id="active-page-title">Active Tickets</h1>
   <h1 id="resolved-page-title" style="display: none;">Resolved Tickets</h1>
   <h1 id="unassigned-page-title" style="display: none;">Unassigned Tickets</h1>
-  
+  <a class="return-arrow" onclick="logout()">← Log Out</a>
   <nav id="ticket-list-navbar">
-    <a class="return-arrow" onclick="logout()">← Log Out</a>
+
+
+    <div id="navbar-left">
+      <div id ="priority-filter" class="filter-category">
+        <p class="filter-label">Priority</p>
+        <div class="filter-group">
+          <label><input type="checkbox" value="low" onchange="applyFilters()"> Low</label>
+          <label><input type="checkbox" value="medium" onchange="applyFilters()"> Medium</label>
+          <label><input type="checkbox" value="high" onchange="applyFilters()"> High</label>
+          <label><input type="checkbox" value="critical" onchange="applyFilters()"> Critical</label>
+        </div>
+      </div>
+      <div id="issue-type-filter" class="filter-category">
+        <p class="filter-label">Issue Type</p>
+        <div class="filter-group">
+        
+          <label><input type="checkbox" value="hardware" onchange="applyFilters()"> Hardware</label>
+          <label><input type="checkbox" value="software" onchange="applyFilters()"> Software</label>
+          <label><input type="checkbox" value="printer" onchange="applyFilters()"> Printer</label>
+          <label><input type="checkbox" value="security" onchange="applyFilters()"> Security</label>
+          <label><input type="checkbox" value="other" onchange="applyFilters()"> Other</label>
+        </div>
+      </div>
+    
+      <!-- <button onclick="filterDropdown()" class="btn">Filters</button> -->
+
+      <!-- <div id="filters-dropdown-menu" class="dropdown-content">
+        <a href="#">Link 1</a>
+        <a href="#">Link 2</a>
+        <a href="#">Link 3</a>
+      </div> -->
+    </div>
     <div id="navbar-right">
+      <button id="search-btn" class="toggle btn" onclick="toggleSearch()" ><span id="search-icon">🔍</span></button>
+      <form id="search-form" action="/tickets/search" method="GET" style="display:none;">
+        <input type="text" id="search-input" name="q" placeholder="Search tickets...">
+      </form>
       <button id="toggle-display-btn" class="toggle btn" onclick="toggleLayout()" ><span id="toggle-icon">☰</span></button>
-      <button id="unassigned-btn" class="btn" onclick="showTab('unassigned')">View Unassigned Tickets</button>
+      <div id="status-btn-container">
+        <button id="unassigned-btn" class="btn" onclick="showTab('unassigned')">View Unassigned Tickets</button>
       <button id="active-btn" class="btn" onclick="showTab('active')" style="display: none;">View Active Tickets</button>
       <button id="resolved-btn" class="btn" onclick="showTab('resolved')">View Resolved Tickets</button>
+      </div>
     </div>
+
   </nav>
   
   
@@ -95,6 +133,38 @@
   
 
   <script>
+    function toggleSearch() {
+      const searchForm = document.getElementById('search-form');
+      const searchIcon = document.getElementById('search-icon');
+      const statusBtnContainer = document.getElementById('status-btn-container');
+      if (searchForm.style.display === 'block') {
+        searchForm.style.display = 'none';
+        searchIcon.textContent = '🔍';
+        statusBtnContainer.style.display = 'flex';
+      } else {
+        searchForm.style.display = 'block';
+        searchIcon.textContent = '✖';
+        statusBtnContainer.style.display = 'none';
+      }
+    }
+    document.getElementById('search-input').addEventListener('keydown', function() {
+     
+    });
+    function applyFilters() {
+      const priorityFilters = Array.from(document.querySelectorAll('#priority-filter input[type="checkbox"]:checked')).map(cb => cb.value);
+      const issueTypeFilters = Array.from(document.querySelectorAll('#issue-type-filter input[type="checkbox"]:checked')).map(cb => cb.value);
+      
+      document.querySelectorAll('.ticket-card').forEach(card => {
+        const matchesPriority = priorityFilters.length === 0 || priorityFilters.some(priority => card.querySelector('.priority').textContent.toLowerCase() === priority);
+        const matchesIssueType = issueTypeFilters.length === 0 || issueTypeFilters.some(issueType => card.querySelector('.badge').textContent.toLowerCase() === issueType);
+
+        if (matchesPriority && matchesIssueType) {
+          card.style.display = '';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+    }
     function logout() {
       fetch('/logout', { method: 'POST', credentials: 'same-origin' })
         .then(response => {
@@ -111,17 +181,21 @@
     }
 
     function showTab(tab) {
+        document.getElementById("priority-filter").style.display = tab === 'active' ? 'flex' : 'none';
+
+          document.getElementById('unassigned-ticket-list').style.display = tab === 'unassigned' ? 'grid' : 'none';
           document.getElementById('active-ticket-list').style.display = tab === 'active' ? 'grid' : 'none';
           document.getElementById('resolved-ticket-list').style.display = tab === 'resolved' ? 'grid' : 'none';
-          document.getElementById('unassigned-ticket-list').style.display = tab === 'unassigned' ? 'grid' : 'none';
+          
 
           document.getElementById('unassigned-btn').style.display = tab === 'unassigned' ? 'none' : 'inline-block';
           document.getElementById('active-btn').style.display = tab === 'active' ? 'none' : 'inline-block';
           document.getElementById('resolved-btn').style.display = tab === 'resolved' ? 'none' : 'inline-block';
 
+          document.getElementById('unassigned-page-title').style.display = tab === 'unassigned' ? 'block' : 'none';
           document.getElementById('active-page-title').style.display = tab === 'active' ? 'block' : 'none';
           document.getElementById('resolved-page-title').style.display = tab === 'resolved' ? 'block' : 'none';
-          document.getElementById('unassigned-page-title').style.display = tab === 'unassigned' ? 'block' : 'none';
+          
     }
 
     function toggleLayout() { 
