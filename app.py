@@ -212,6 +212,22 @@ def findSimilarTickets(ticket, number_of_similar=3, threshold=0.1):
     closest_tickets = heapq.nlargest(number_of_similar, zip(candidates, scores), key=lambda x: x[1])
     return [ticket for ticket, score in closest_tickets if score >= threshold]
 
+def searchTickets(query):
+    pseudo_ticket = {
+        "id": -1,
+        "ticketer_name": "",
+        "email": "",
+        "issue_type": "",
+        "priority": "",
+        "summary": query,
+        "description": "",
+        "status": "",
+        "resolution_details": None,
+        "specialist_assigned": None,
+        "submission_date": None,
+    }
+    return findSimilarTickets(pseudo_ticket, number_of_similar=len(database), threshold=0.05)
+
 # ----------------------------- SIMILAR TICKETS FINDING END -----------------------------
 
 
@@ -269,7 +285,10 @@ def viewTicketById(ticket_id):
     ticket = next((t for t in database if t["id"] == ticket_id), None)
     if not ticket:
         return f"<p>Ticket #{ticket_id} not found. <a href='/tickets/view'>Go back</a></p>", 404
-    return render_template("ticket_details.html", ticket=ticket, related_tickets=findSimilarTickets(ticket))
+    ref= request.args.get("ref", "tickets")
+    query = request.args.get("q", "")
+
+    return render_template("ticket_details.html", ticket=ticket, ref=ref, query=query, related_tickets=findSimilarTickets(ticket))
 
 @app.route('/tickets', methods=['POST'])
 def createTicket():
@@ -300,7 +319,7 @@ def createTicket():
     next_id += 1
     database.append(new_ticket)
 
-    email_notifier.notify_ticketer(new_ticket, "submission")
+    email_notifier.notify_async(new_ticket, "submission")
     return jsonify(new_ticket), 201
 
 #----------------------------- TICKET VIEWING AND CREATION ENDPOINTS END -----------------------------
@@ -324,7 +343,7 @@ def claimTicket(ticket_id, priority):
     ticket["specialist_assigned"] = session.get("username")  
     ticket["assignment_date"] = datetime.now().strftime("%b %d, %Y  %H:%M")
 
-    email_notifier.notify_ticketer(ticket, "assignment")
+    email_notifier.notify_async(ticket, "assignment")
     return jsonify({"message" : f"ticket {ticket_id} claimed and now active"}), 200
     
 def resolveTicket(ticket_id, resolution_details):
@@ -342,7 +361,7 @@ def resolveTicket(ticket_id, resolution_details):
     ticket["resolution_details"] = resolution_details
     ticket["resolution_date"] = datetime.now().strftime("%b %d, %Y  %H:%M")
 
-    email_notifier.notify_ticketer(ticket, "resolution")
+    email_notifier.notify_async(ticket, "resolution")
     return jsonify({"message" : f"ticket {ticket_id} resolved"}), 200
 
 
@@ -392,7 +411,21 @@ def updateTicket(ticket_id):
     #----------------------------- TICKET UPDATING ENDPOINTS END -----------------------------
 
 
+#----------------------------- SEARCH ENDPOINTS -----------------------------
+@app.route('/tickets/search', methods=['GET'])
+def searchTicketsRoute():
+    auth_error = it_only_check()
+    if auth_error:
+        return auth_error
+    query = request.args.get("q", "").strip()
+    if not query:
+        return jsonify({"error": "query parameter q is required"}), 400
+    results = searchTickets(query)
+    return render_template("search.html", tickets=results, query=query), 200
 
+
+
+#----------------------------- SEARCH ENDPOINTS END -----------------------------
 
 
 

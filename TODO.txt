@@ -1,15 +1,16 @@
-- create way to filter tickets by priority/ issue type
+- create way to filter tickets by priority/ issue type DONE
 -"does this affect only you are others also"
 
 
 
 
 email notification system DONE
--NOTE: service rigidly uses 465 TLS security, might update later
 -TODO: implement async mesage queue system
 
 
 Pagination
 
 
-header REFACTOR
+header REFACTOR DONE
+
+dialog pop up confirm for logging out?

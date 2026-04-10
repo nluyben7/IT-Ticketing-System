@@ -13,18 +13,8 @@
   <h1 id="unassigned-page-title" style="display: none;">Unassigned Tickets</h1>
   <a class="return-arrow" onclick="logout()">← Log Out</a>
   <nav id="ticket-list-navbar">
-
-
     <div id="navbar-left">
-      <div id ="priority-filter" class="filter-category">
-        <p class="filter-label">Priority</p>
-        <div class="filter-group">
-          <label><input type="checkbox" value="low" onchange="applyFilters()"> Low</label>
-          <label><input type="checkbox" value="medium" onchange="applyFilters()"> Medium</label>
-          <label><input type="checkbox" value="high" onchange="applyFilters()"> High</label>
-          <label><input type="checkbox" value="critical" onchange="applyFilters()"> Critical</label>
-        </div>
-      </div>
+      
       <div id="issue-type-filter" class="filter-category">
         <p class="filter-label">Issue Type</p>
         <div class="filter-group">
@@ -36,14 +26,15 @@
           <label><input type="checkbox" value="other" onchange="applyFilters()"> Other</label>
         </div>
       </div>
-    
-      <!-- <button onclick="filterDropdown()" class="btn">Filters</button> -->
-
-      <!-- <div id="filters-dropdown-menu" class="dropdown-content">
-        <a href="#">Link 1</a>
-        <a href="#">Link 2</a>
-        <a href="#">Link 3</a>
-      </div> -->
+      <div id ="priority-filter" class="filter-category">
+        <p class="filter-label">Priority</p>
+        <div class="filter-group">
+          <label><input type="checkbox" value="low" onchange="applyFilters()"> Low</label>
+          <label><input type="checkbox" value="medium" onchange="applyFilters()"> Medium</label>
+          <label><input type="checkbox" value="high" onchange="applyFilters()"> High</label>
+          <label><input type="checkbox" value="critical" onchange="applyFilters()"> Critical</label>
+        </div>
+      </div>
     </div>
     <div id="navbar-right">
       <button id="search-btn" class="toggle btn" onclick="toggleSearch()" ><span id="search-icon">🔍</span></button>
@@ -57,7 +48,6 @@
       <button id="resolved-btn" class="btn" onclick="showTab('resolved')">View Resolved Tickets</button>
       </div>
     </div>
-
   </nav>
   
   
@@ -147,8 +137,12 @@
         statusBtnContainer.style.display = 'none';
       }
     }
+    //maybe unnessary since the form should submit on enter by default, but just in case
     document.getElementById('search-input').addEventListener('keydown', function() {
-     
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        this.form.submit();
+      }
     });
     function applyFilters() {
       const priorityFilters = Array.from(document.querySelectorAll('#priority-filter input[type="checkbox"]:checked')).map(cb => cb.value);

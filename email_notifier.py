@@ -1,5 +1,6 @@
 import smtplib
 import os
+import threading
 from email.mime.text import MIMEText
 
 
@@ -67,4 +68,9 @@ class EmailNotifier:
         if not handler:
             raise ValueError(f"Unknown notification type: {notification_type}")
         handler()
+
+    def notify_async(self, ticket, notification_type):
+        thread = threading.Thread(target=self.notify_ticketer, args=(ticket, notification_type))
+        thread.daemon = True # Good for persoanl project, bad in prod
+        thread.start()
     

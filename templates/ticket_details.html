@@ -8,7 +8,9 @@
         <link href="/static/ticketstyles.css" rel="stylesheet">
     </head>
     <body>
-        {% if ticket.status == "unassigned" %}
+        {%if ref=='search' %}
+        <a class="return-arrow" href="/tickets/search?q={{ query }}">← Back to results</a>
+        {% elif ticket.status == "unassigned" %}
         <a class="return-arrow" href="/tickets/view#unassigned">← Back to all tickets</a>
         {% elif ticket.status == "active" %}
         <a class="return-arrow" href="/tickets/view#active">← Back to all tickets</a>

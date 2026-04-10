@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>Search</title>
+    <link href="/static/ticketstyles.css" rel="stylesheet">
+	</head>
+	<body>
+		<h1>Search Results</h1>
+		<a class="return-arrow" href="/tickets/view#active">← Back to all tickets</a>
+
+        
+    {% if tickets %}
+    <section class="ticket-list grid-view">
+      {% for ticket in tickets %}
+        <a href="/tickets/view/{{ticket.id}}?ref=search&q={{ query }}">
+          <div class="ticket-card">
+            <p class="id-badge">ID: {{ ticket.id }}</p>
+            <div class="ticket-header">
+              <p class="badge">{{ ticket.issue_type }}</p>
+              
+              {% if ticket.status == 'unassigned' %}
+                 <div class="priority priority-inactive">{{ ticket.status }}</div>
+              {% elif ticket.status == 'active' %}
+                 <div class="priority priority-{{ ticket.priority }}">{{ ticket.status }}</div>
+              {% elif ticket.status == 'resolved' %}
+                 <div class="priority priority-resolved">{{ ticket.status }}</div>
+              {% endif %}
+              
+            </div>
+            <h3>{{ ticket.summary }}</h3>
+            <p class="ticket-meta">{{ ticket.ticketer_name }} — {{ ticket.email }}</p>
+            <p class="ticket-description">{{ ticket.description | truncate(240) }}</p>
+          </div>
+        </a>
+      {% endfor %}
+      </section>
+    {% else %}
+      <p>No tickets yet.</p>
+    {% endif %}
+  
+	</body>
+</html>
