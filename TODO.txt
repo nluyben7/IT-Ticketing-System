@@ -1,16 +1,16 @@
-- create way to filter tickets by priority/ issue type DONE
--"does this affect only you are others also"
+
+Real Database TODO
+
+Pagination
+
+REFACTORING:
+filter tickets individuially, remove the 3 separate lists
+
+dialog pop up confirm for logging out?
 
 
 
 
 email notification system DONE
--TODO: implement async mesage queue system
-
-
-Pagination
-
-
-header REFACTOR DONE
-
-dialog pop up confirm for logging out?
+-TODO: implement async mesage queue system DONE
+- create way to filter tickets by priority/ issue type DONE

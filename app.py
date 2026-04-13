@@ -291,8 +291,11 @@ def getTickets():
 
 @app.route('/tickets/view', methods=['GET'])
 def viewTickets():
-    if not session.get("is_it_department"):
-        return render_template("login.html")
+    auth_error = it_only_check()
+    if auth_error:
+        return render_template("login.html")  
+    
+     
     return render_template("tickets.html", tickets=database)
 
 @app.route('/tickets/view/<int:ticket_id>', methods=['GET'])
