@@ -8,7 +8,7 @@ filter tickets individuially, remove the 3 separate lists
 
 dialog pop up confirm for logging out?
 
-
+separate active tickets by assignments (if ticket specialist assigned != current username, cant see it)
 
 
 email notification system DONE

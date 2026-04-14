@@ -43,25 +43,6 @@
         </div>
       </fieldset>
 
-      <!-- <fieldset id="priority">
-        <div class="form-group"> 
-          <label>Priority</label>
-          <div class="badge-row">
-            <input id="priority-low-btn" type="radio" name="priority" value="low" required>
-            <label for="priority-low-btn">Low</label>
-            <input id="priority-medium-btn" type="radio" name="priority" value="medium">
-            <label for="priority-medium-btn">Medium</label>
-            <input id="priority-high-btn" type="radio" name="priority" value="high">
-            <label for="priority-high-btn">High</label>
-            <input id="priority-critical-btn" type="radio" name="priority" value="critical">
-            <label for="priority-critical-btn">Critical</label>
-          </div>
-          <span id="priority-error" style="display:none; color:red; font-size:0.85rem;">
-            Please select a priority level.
-          </span>
-        </div>
-      </fieldset> -->
-
       <fieldset>
         <div class="form-group">
           <label for="summary-input">Short Summary</label>
@@ -85,12 +66,11 @@
 
   <script>
     document.getElementById('ticket-form').addEventListener('submit', async (e) => {
-      e.preventDefault(); // stop normal form submission
+      e.preventDefault();
       const body = {
           ticketer_name: document.getElementById('name-input').value.trim(),
-          email:         document.getElementById('email-input').value.trim(),
+          ticketer_email:         document.getElementById('email-input').value.trim(),
           issue_type:    document.getElementById('category-input').value,
-          // priority:      document.querySelector('input[name="priority"]:checked')?.value,
           summary:       document.getElementById('summary-input').value.trim(),
           description:   document.getElementById('description-input').value.trim(),
       };
@@ -114,17 +94,5 @@
       });
   </script>
 
-  <!-- <script>
-    const radios = document.querySelectorAll('input[name="priority"]');
-    radios.forEach(radio => {
-        radio.addEventListener('invalid', () => {
-            document.getElementById('priority-error').style.display = 'block';
-        });
-    });
-
-    document.getElementById('ticket-form').addEventListener('submit', () => {
-        document.getElementById('priority-error').style.display = 'none';
-    });
-  </script> -->
 </body>
 </html>

@@ -412,7 +412,7 @@ a{
 
 #related-tickets-container {
     margin: 5rem auto;
-    padding: 1rem 0rem 2rem 0rem;
+    padding-top: 1rem;
     border: 2px solid var(--border);
     background-color: var(--surface);
     color: var(--text);
@@ -422,6 +422,9 @@ a{
 #related-tickets-container h2 {
     text-align: center;
     margin-bottom: 1rem;
+}
+#related-tickets-list {
+    padding-bottom: 2rem;
 }
 
 
@@ -574,3 +577,9 @@ label {
 /*----- DIALOG BOX END---------*/
 
 
+#no-tickets {
+    text-align: center;
+    font-size: 1.5rem;
+    color: var(--muted);
+    margin-top: 5rem;
+}

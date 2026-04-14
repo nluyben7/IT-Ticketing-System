@@ -60,9 +60,9 @@ class EmailNotifier:
     #
     def notify_ticketer(self, ticket, notification_type):
         dispatch = {
-            "submission": lambda : self._form_ticket_submission_email(ticket["ticketer_name"], ticket["email"], ticket["id"]),
-            "assignment": lambda : self._form_ticket_assignment_email(ticket["ticketer_name"], ticket["email"], ticket["id"], ticket["specialist_assigned"]),
-            "resolution": lambda : self._form_ticket_resolution_email(ticket["ticketer_name"], ticket["email"], ticket["id"], ticket["specialist_assigned"])
+            "submission": lambda : self._form_ticket_submission_email(ticket["ticketer_name"], ticket["ticketer_email"], ticket["id"]),
+            "assignment": lambda : self._form_ticket_assignment_email(ticket["ticketer_name"], ticket["ticketer_email"], ticket["id"], ticket["specialist_assigned"]),
+            "resolution": lambda : self._form_ticket_resolution_email(ticket["ticketer_name"], ticket["ticketer_email"], ticket["id"], ticket["specialist_assigned"])
         }
         handler = dispatch.get(notification_type)
         if not handler:

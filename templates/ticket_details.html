@@ -44,7 +44,7 @@
         {% else %}
         <section id="resolution-explanation-container">
             <h2>Resolution Details</h2>
-            <p id="resolver-name">Resolved By: {{ ticket.resolved_by }}</p>
+            <p id="resolver-name">Resolved By: {{ ticket.specialist_assigned }}</p>
             <p id="resolution-explanation">{{ ticket.resolution_details }}</p>
         </section>
         {% endif %}
@@ -52,7 +52,7 @@
         {% if related_tickets %}
         <div id="related-tickets-container">
             <h2>These tickets might be similar:</h2>
-            <section class="ticket-list list-view">
+            <section id="related-tickets-list" class="ticket-list list-view">
             {% for related_ticket in related_tickets %}
                 <a href="/tickets/view/{{related_ticket.id}}">
                 <div class="ticket-card">

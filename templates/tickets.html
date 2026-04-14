@@ -46,16 +46,16 @@
       <button id="toggle-display-btn" class="toggle btn" onclick="toggleLayout()" ><span id="toggle-icon">☰</span></button>
       <div id="status-btn-container">
         <button id="unassigned-btn" class="btn" onclick="showTab('unassigned')">Unassigned Tickets</button>
-        <button id="active-btn" class="btn" onclick="showTab('active')" style="display: none;">Active Tickets</button>
+        <button id="active-btn" class="btn" onclick="showTab('active')" >Active Tickets</button>
         <button id="resolved-btn" class="btn" onclick="showTab('resolved')">Resolved Tickets</button>
-        <button id="all-btn" class="btn" onclick="showTab('all')">All Tickets</button>
+        <button id="all-btn" class="btn" onclick="showTab('all')" style="display: none;">All Tickets</button>
       </div>
     </div>
   </nav>
   
-  
+  {% if tickets %}
   <section id="ticket-list" class="ticket-list grid-view">
-    {% if tickets %}
+    
       {% for ticket in tickets%}
         <a href="/tickets/view/{{ticket.id}}">
           <div class="ticket-card">
@@ -75,10 +75,10 @@
           </div>
         </a>
       {% endfor %}
-    {% else %}
-      <p>No tickets yet.</p>
-    {% endif %}
   </section>
+  {% else %}
+      <p id="no-tickets">No tickets yet.</p>
+    {% endif %}
 
   <!-- <section id="active-ticket-list" class="ticket-list grid-view">
     {% if tickets %}
@@ -253,14 +253,15 @@
         const isListView = document.querySelector('.ticket-list').classList.contains('list-view');
         icon.textContent = isListView ? '⊞' : '☰';
     }
+
     if(windows.location.hash == '#all') {
       showTab('all');
     } else if (window.location.hash === '#unassigned') {
       showTab('unassigned');
+    } else if (window.location.hash === '#active') {
+      showTab('active');
     } else if (window.location.hash === '#resolved') {
-      showTab('resolved');
-    } else {
-      showTab('active');  // default
+      showTab('resolved');  // default
     }
   </script>
 </body>
