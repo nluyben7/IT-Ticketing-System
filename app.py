@@ -133,7 +133,7 @@ def viewTicketById(ticket_id):
     if not ticket:
         return f"<p>Ticket #{ticket_id} not found. <a href='/tickets/view'>Go back</a></p>", 404
 
-    return render_template("ticket_details.html", ticket=dict(ticket), related_tickets=findSimilarTickets(dict(ticket)))
+    return render_template("ticket_details.html", ticket=dict(ticket), related_tickets=findSimilarTickets(dict(ticket)), username=session.get("username"))
 
 @app.route('/tickets', methods=['POST'])
 def createTicket():
@@ -196,6 +196,9 @@ def resolveTicket(ticket_id, resolution_details):
     if ticket.get("status") != "active":
         db.close()
         return jsonify({"error": "only active tickets can be resolved"}), 400
+    if ticket.get("specialist_assigned") != session.get("username"):
+        db.close()
+        return jsonify({"error": "you can only resolve tickets assigned to you"}), 403
     db.execute('''UPDATE tickets 
                SET status = 'resolved', resolution_details = ?, resolution_date = ?
                WHERE id = ?''',
@@ -232,6 +235,9 @@ def changePriority(ticket_id, new_priority):
     if ticket.get("status") != "active":
         db.close()
         return jsonify({"error": "only active tickets can have their priority updated"}), 400
+    if ticket.get("specialist_assigned") != session.get("username"):
+        db.close()
+        return jsonify({"error": "you can only update the priority of tickets assigned to you"}), 403
     db.execute('''UPDATE tickets
                SET priority = ?
                WHERE id = ?''',

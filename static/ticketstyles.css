@@ -195,6 +195,7 @@ a{
     border-bottom: 2px solid var(--border);
     padding-bottom: 0.5rem;
     margin: 0.5rem 0;
+    text-align: center;
 }
 .ticket-card-expanded .ticket-meta .date {
     margin: 0 1rem;
@@ -260,12 +261,13 @@ a{
     max-width: 100%;
     border: 2px solid var(--border);
     background-color: var(--surface);
-    padding: 1rem;
+    padding: 1rem 0.2rem;
     overflow: hidden;
     word-break: break-all; 
     display: flex;
     justify-content: flex-start;
     align-items: center;
+    gap: 0.5rem;
 }
 
 .ticket-list.list-view .ticket-card .ticket-header {
@@ -284,7 +286,7 @@ a{
     width: fit-content;
     height: fit-content;
     padding: 0.1rem 10px;
-    margin: 0 0.5rem;
+    margin: 0 0.1rem;
     border-radius: 999px;
     font-size: 1rem;
     font-weight: 600;
@@ -300,12 +302,12 @@ a{
     white-space: nowrap;
     text-transform: uppercase;
     font-weight: bold;
-    height: 300%;
 }
 
 .ticket-list.list-view .ticket-meta {
     display: inline-block;
     width: 25%;
+    text-align: left;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;

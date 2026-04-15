@@ -1,16 +1,24 @@
 
-Real Database TODO
+
 
 Pagination
 
-REFACTORING:
-filter tickets individuially, remove the 3 separate lists
 
 dialog pop up confirm for logging out?
 
-separate active tickets by assignments (if ticket specialist assigned != current username, cant see it)
 
+think about unassigned/activ/resolved/all. Where to redirect on back buttons, maybe holding filtering state
+
+analytics for each IT specialist (need table for IT employees)
 
 email notification system DONE
 -TODO: implement async mesage queue system DONE
 - create way to filter tickets by priority/ issue type DONE
+
+
+REFACTORING: DONE
+filter tickets individuially, remove the 3 separate lists
+
+Real Database DONE
+
+separate active tickets by assignments (if ticket specialist assigned != current username, cant change it) DONE

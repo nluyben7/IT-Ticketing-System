@@ -70,7 +70,7 @@
               {% endif %}
             </div>
             <h3>{{ ticket.summary }}</h3>
-            <p class="ticket-meta">{{ ticket.ticketer_name }} — {{ ticket.email }}</p>
+            <p class="ticket-meta">{{ ticket.ticketer_name }} — {{ ticket.ticketer_email }}</p>
             <p class="ticket-description">{{ ticket.description | truncate(240) }}</p>
           </div>
         </a>
@@ -179,7 +179,6 @@
           alert('An error occurred. Please try again.');
         });
     }
-
     function showTab(tab) {
         switch(tab) {
           case 'unassigned':
@@ -254,11 +253,12 @@
         icon.textContent = isListView ? '⊞' : '☰';
     }
 
-    if(windows.location.hash == '#all') {
+    if(window.location.hash == '#all') {
       showTab('all');
     } else if (window.location.hash === '#unassigned') {
       showTab('unassigned');
     } else if (window.location.hash === '#active') {
+      console.log("hi");
       showTab('active');
     } else if (window.location.hash === '#resolved') {
       showTab('resolved');  // default
