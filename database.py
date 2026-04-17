@@ -1,8 +1,9 @@
 import sqlite3
+import bcrypt
 
 DATABASE = 'IT_database.db'
 
-seeded_database = [
+seeded_tickets = [
     {
     "ticketer_name": "John Smith",
     "ticketer_email": "janedoe@quinndustries.com",
@@ -12,7 +13,7 @@ seeded_database = [
     "description": "The office printer on floor 2 is jammed, yada yada yada",
     "status": "unassigned",
     "resolution_details": None,
-    "specialist_assigned": None,
+    "specialist_username_assigned": None,
     "submission_date": "2024-06-01T10:00:00Z",
     "assignment_date": None,
     "resolution_date": None
@@ -25,7 +26,7 @@ seeded_database = [
     "summary": "Laptop won't turn on",
     "description": "My laptop stopped turning on this morning. I tried holding the power button, unplugging and replugging the charger, but nothing works. The charging light doesn't even come on. I have a big presentation today.",
     "status": "unassigned",
-    "specialist_assigned": None,
+    "specialist_username_assigned": None,
     "resolution_details": None,
     "resolution_date": None,
     "assignment_date": None,
@@ -39,7 +40,7 @@ seeded_database = [
     "summary": "Computer not powering on at all",
     "description": "Came into the office this morning and my desktop computer will not turn on. Pressed the power button multiple times, checked the power cable is plugged in. The monitor is fine. No lights or sounds from the tower at all.",
     "status": "unassigned",
-    "specialist_assigned": None,
+    "specialist_username_assigned": None,
     "resolution_details": None,
     "resolution_date": None,
     "assignment_date": None,
@@ -53,7 +54,7 @@ seeded_database = [
     "summary": "Machine dead after power outage",
     "description": "After the power outage yesterday my workstation will not boot. I press the power button and nothing happens, no fans, no lights, nothing. I think the power supply may have been damaged by the surge.",
     "status": "unassigned",
-    "specialist_assigned": None,
+    "specialist_username_assigned": None,
     "resolution_details": None,
     "resolution_date": None,
     "assignment_date": None,
@@ -67,7 +68,7 @@ seeded_database = [
     "summary": "Floor 3 printer not showing on network",
     "description": "The printer on floor 3 has disappeared from the list of available printers on my machine. Other people on my floor have the same issue. It was working fine last week. I tried restarting my computer but it did not come back.",
     "status": "unassigned",
-    "specialist_assigned": None,
+    "specialist_username_assigned": None,
     "resolution_details": None,
     "resolution_date": None,
     "assignment_date": None,
@@ -81,7 +82,7 @@ seeded_database = [
     "summary": "Cannot find printer on floor 3",
     "description": "The floor 3 network printer has vanished from my printer list. I asked around and several colleagues have the same problem. Tried removing and re-adding the printer but it does not show up when searching the network.",
     "status": "unassigned",
-    "specialist_assigned": None,
+    "specialist_username_assigned": None,
     "resolution_details": None,
     "resolution_date": None,
     "assignment_date": None,
@@ -95,7 +96,7 @@ seeded_database = [
     "summary": "Suspicious login attempt on my account",
     "description": "I received an email alert saying someone tried to log into my account from an IP address in another country. I did not initiate this. I have already changed my password but wanted to flag it to IT immediately in case further action is needed.",
     "status": "active",
-    "specialist_assigned": "alice",
+    "specialist_username_assigned": "asmith7",
     "resolution_details": None,
     "resolution_date": None,
     "assignment_date": "Apr 01, 2026  11:00 AM",
@@ -109,7 +110,7 @@ seeded_database = [
     "summary": "Account locked after suspicious activity",
     "description": "My account was locked this morning after several failed login attempts that I did not make. I received alerts about login attempts from an unrecognized location. I suspect my credentials may have been compromised.",
     "status": "active",
-    "specialist_assigned": "bob",
+    "specialist_username_assigned": "bjones",
     "resolution_details": None,
     "resolution_date": None,
     "assignment_date": "Apr 01, 2026  11:15 AM",
@@ -123,7 +124,7 @@ seeded_database = [
     "summary": "Excel keeps crashing on large files",
     "description": "Whenever I open our Q3 budget spreadsheet Excel freezes after about 30 seconds and then crashes entirely. I have tried reinstalling Office but the issue persists. This is blocking me from doing my end of month reporting.",
     "status": "resolved",
-    "specialist_assigned": "alice",
+    "specialist_username_assigned": "asmith7",
     "resolution_details": "Updated Microsoft Office to the latest version and cleared the Excel temp files cache. Also increased the virtual memory allocation on the machine.",
     "resolution_date": "Apr 02, 2026  02:30 PM",
     "assignment_date": "Apr 01, 2026  01:00 PM",
@@ -137,7 +138,7 @@ seeded_database = [
     "summary": "Office applications freezing and crashing",
     "description": "Word and Excel have both been crashing repeatedly today when working with larger documents. The applications freeze for a minute then close. I have tried restarting but the problem keeps coming back. I need these applications for daily work.",
     "status": "unassigned",
-    "specialist_assigned": None,
+    "specialist_username_assigned": None,
     "resolution_details": None,
     "resolution_date": None,
     "assignment_date": None,
@@ -151,7 +152,7 @@ seeded_database = [
     "summary": "VPN disconnects every 20 minutes",
     "description": "Since last Tuesday my VPN connection drops every 20 minutes while working remotely. I have to manually reconnect each time which is very disruptive to my workflow. I am on Windows 11 and using the standard company VPN client.",
     "status": "unassigned",
-    "specialist_assigned": None,
+    "specialist_username_assigned": None,
     "resolution_details": None,
     "resolution_date": None,
     "assignment_date": None,
@@ -166,10 +167,28 @@ seeded_database = [
     "description": "bugger is tricky, innit bro?",
     "status": "unassigned",
     "resolution_details": None,
-    "specialist_assigned": None,
+    "specialist_username_assigned": None,
     "submission_date": "2024-06-01T10:00:00Z",
     "assignment_date": None,
     "resolution_date": None
+    }
+]
+#dummy accounts
+seeded_it_accounts = [
+    {
+    "username": "asmith7",
+    "hashed_password": bcrypt.hashpw("password123".encode('utf-8'), bcrypt.gensalt()),
+    "name": "Alice Smith"
+    },
+    {
+    "username": "bjones",
+    "hashed_password": bcrypt.hashpw("password456".encode('utf-8'), bcrypt.gensalt()),
+    "name": "Bob Jones"
+    },
+    {
+    "username": "charlie.reed",
+    "hashed_password": bcrypt.hashpw("password789".encode('utf-8'), bcrypt.gensalt()),
+    "name": "Charlie Reed"
     }
 ]
 
@@ -192,10 +211,21 @@ def init_db():
             description TEXT NOT NULL,
             status TEXT NOT NULL,
             resolution_details TEXT,
-            specialist_assigned TEXT,
+            specialist_username_assigned TEXT,
             submission_date TEXT NOT NULL,
             assignment_date TEXT,
             resolution_date TEXT   
+            )  
+            ''')
+    db.execute('''DROP TABLE IF EXISTS it_specialists''')
+    db.execute(''' CREATE TABLE IF NOT EXISTS it_specialists (
+            username TEXT PRIMARY KEY,
+            hashed_password TEXT NOT NULL,
+            name TEXT NOT NULL,
+            tickets_claimed INTEGER DEFAULT 0,
+            tickets_active INTEGER DEFAULT 0,
+            tickets_resolved INTEGER DEFAULT 0,
+            total_resolution_time_minutes INTEGER DEFAULT 0
             )  
             ''')
     db.commit()
@@ -209,8 +239,8 @@ def seed_db():
         print(f"Database already has {existing_ticket_count} tickets. Skipping seeding.")
         db.close()
         return
-    for ticket in seeded_database:
-        db.execute('''INSERT OR REPLACE INTO tickets (ticketer_name, ticketer_email, issue_type, priority, summary, description, status, resolution_details, specialist_assigned, submission_date, assignment_date, resolution_date)
+    for ticket in seeded_tickets:
+        db.execute('''INSERT OR REPLACE INTO tickets (ticketer_name, ticketer_email, issue_type, priority, summary, description, status, resolution_details, specialist_username_assigned, submission_date, assignment_date, resolution_date)
                      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''', (
             ticket["ticketer_name"],
             ticket["ticketer_email"],
@@ -220,14 +250,23 @@ def seed_db():
             ticket["description"],
             ticket["status"],
             ticket.get("resolution_details"),
-            ticket.get("specialist_assigned"),
+            ticket.get("specialist_username_assigned"),
             ticket.get("submission_date"),
             ticket.get("assignment_date"),
             ticket.get("resolution_date")
         ))
+
+    for it_account in seeded_it_accounts:
+        db.execute('''INSERT INTO it_specialists
+                   (username, hashed_password, name)
+                   VALUES (?,?,?) ''',(
+            it_account["username"],
+            it_account["hashed_password"],
+            it_account["name"]
+        ))
     db.commit()
     db.close()
-    print(f"Database seeded with {len(seeded_database)} tickets.")
+    print(f"Database seeded with {len(seeded_tickets)} tickets and {len(seeded_it_accounts)} accounts.")
 
 
     

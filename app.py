@@ -3,6 +3,7 @@ from datetime import datetime
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 import heapq
+import bcrypt
 from email_notifier import EmailNotifier
 
 from database import get_db, init_db, seed_db
@@ -14,11 +15,7 @@ app.secret_key = "supersecretkey"  # In production, use a secure random key and 
 email_notifier = EmailNotifier()
 init_db()
 seed_db()
-IT_ACCOUNTS = {
-    "alice": "password123",
-    "bob": "password456",
-    "charlie": "password789"
-}
+
 
 
 #----------------------------- SIMILAR TICKETS FINDING -----------------------------
@@ -58,7 +55,7 @@ def searchTickets(query):
         "description": "",
         "status": "",
         "resolution_details": None,
-        "specialist_assigned": None,
+        "specialist_username_assigned": None,
         "submission_date": None,
     }
     return findSimilarTickets(pseudo_ticket, number_of_similar=total_count, threshold=0.05)
@@ -81,13 +78,19 @@ def login_page():
 def login():
     body  = request.get_json()
     if not body or not body.get("password") or not body.get("username"):
-        return jsonify({"error": "username and password are required"}), 401
-    if body["username"] not in IT_ACCOUNTS or IT_ACCOUNTS[body["username"]] != body["password"]:
-        return jsonify({"error": "incorrect username or password"}), 401
-    
+        return jsonify({"error": "username and password are required to login"}), 401
+    db = get_db()
+    row = db.execute('''SELECT hashed_password FROM it_specialists WHERE username = ? ''', (body.get("username"),)).fetchone()
+    db.close()
+    if not row:
+        return jsonify({"message": "username or password is incorrect"}), 401
+    submitted_password = body.get("password")
+    if not bcrypt.checkpw(body.get("password").encode('utf-8'),row["hashed_password"]):
+        return jsonify({"message": "username or password is incorrect"}), 401
     session["is_it_department"] = True
     session["username"] = body["username"]
     return jsonify({"message": "login successful"}), 200
+    
 
 @app.route('/logout', methods=['POST'])
 def logout():
@@ -128,12 +131,19 @@ def viewTicketById(ticket_id):
     if auth_error:
         return auth_error
     db = get_db()
-    ticket = db.execute('SELECT * FROM tickets WHERE id = ?', (ticket_id,)).fetchone()
-    db.close()
+    ticket = dict(db.execute('SELECT * FROM tickets WHERE id = ?', (ticket_id,)).fetchone())
     if not ticket:
         return f"<p>Ticket #{ticket_id} not found. <a href='/tickets/view'>Go back</a></p>", 404
-
-    return render_template("ticket_details.html", ticket=dict(ticket), related_tickets=findSimilarTickets(dict(ticket)), username=session.get("username"))
+    print(ticket["specialist_username_assigned"])
+    specialist = None
+    specialist_row =  db.execute('SELECT username, name FROM it_specialists WHERE username = ?', (ticket["specialist_username_assigned"],)).fetchone()
+    db.close()
+    if specialist_row:
+        specialist = dict(specialist_row)
+        print(specialist["name"])
+    
+    return render_template("ticket_details.html", ticket=ticket, related_tickets=findSimilarTickets(ticket),
+                            specialist = specialist, username=session.get("username"))
 
 @app.route('/tickets', methods=['POST'])
 def createTicket():
@@ -177,7 +187,7 @@ def claimTicket(ticket_id, priority):
         return jsonify({"error": "ticket is already active"}), 400
     
     db.execute('''UPDATE tickets
-                SET status = 'active', priority = ?, specialist_assigned = ?, assignment_date = ?
+                SET status = 'active', priority = ?, specialist_username_assigned = ?, assignment_date = ?
                 WHERE id = ?''',
                 (priority, session.get("username"), datetime.now().strftime("%b %d, %Y  %H:%M"), ticket_id))
     db.commit()
@@ -196,7 +206,7 @@ def resolveTicket(ticket_id, resolution_details):
     if ticket.get("status") != "active":
         db.close()
         return jsonify({"error": "only active tickets can be resolved"}), 400
-    if ticket.get("specialist_assigned") != session.get("username"):
+    if ticket.get("specialist_username_assigned") != session.get("username"):
         db.close()
         return jsonify({"error": "you can only resolve tickets assigned to you"}), 403
     db.execute('''UPDATE tickets 
@@ -235,7 +245,7 @@ def changePriority(ticket_id, new_priority):
     if ticket.get("status") != "active":
         db.close()
         return jsonify({"error": "only active tickets can have their priority updated"}), 400
-    if ticket.get("specialist_assigned") != session.get("username"):
+    if ticket.get("specialist_username_assigned") != session.get("username"):
         db.close()
         return jsonify({"error": "you can only update the priority of tickets assigned to you"}), 403
     db.execute('''UPDATE tickets

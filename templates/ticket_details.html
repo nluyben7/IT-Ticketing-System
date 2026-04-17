@@ -29,14 +29,14 @@
           </div>
           <h3>{{ ticket.summary }}</h3>
           <p class="ticket-meta">{{ ticket.ticketer_name }} — {{ ticket.email }}  <time class="date">{{ ticket.submission_date }}</time></p>
-          <p class="ticket-meta">Ticket Assigned to: {{ ticket.specialist_assigned }} </p>
+          <p class="ticket-meta">Ticket Assigned to: {{ specialist.name if specialist else 'None' }} </p>
           <p class="ticket-description">{{ ticket.description }}</p>
         </div>
         {% if ticket.status == "unassigned" %}
         <div class="btn-container">
             <button id="claim-btn" class="btn" onclick="document.getElementById('claim-dialog').showModal()">Claim Ticket</button>
         </div>
-        {% elif ticket.status == "active" and ticket.specialist_assigned == username %}
+        {% elif ticket.status == "active" and ticket.specialist_username_assigned == username %}
         <div class="btn-container">
             <button id="resolve-btn" class="btn" onclick="document.getElementById('resolution-dialog').showModal()">Resolve Ticket</button>
             <button id="update-btn" class="btn" onclick="document.getElementById('priority-dialog').showModal()">Update Priority</button>
@@ -45,7 +45,7 @@
         {% elif ticket.status == "resolved" %}
         <section id="resolution-explanation-container">
             <h2>Resolution Details</h2>
-            <p id="resolver-name">Resolved By: {{ ticket.specialist_assigned }}</p>
+            <p id="resolver-name">Resolved By: {{ ticket.specialist_username_assigned }}</p>
             <p id="resolution-explanation">{{ ticket.resolution_details }}</p>
         </section>
         {% endif %}
