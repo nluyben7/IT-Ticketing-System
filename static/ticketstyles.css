@@ -386,6 +386,7 @@ a{
     text-align: center;
     padding: 0.5rem;
     max-width: 700px;
+    width: fit-content;
 }
 .btn:hover {
     opacity: 0.6;
@@ -404,12 +405,20 @@ a{
     width: 20rem;
     
 }
-#unassigned-btn, #active-btn, #resolved-btn {
+#unassigned-btn, #active-btn, #resolved-btn, #all-btn {
     height: 100%;
 }
 #status-btn-container {
     display: flex;
+    align-items: center;
     gap: 1.5rem;
+    min-width: fit-content;
+    
+}
+#status-btn-container .btn {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
 }
 
 #related-tickets-container {
@@ -577,6 +586,39 @@ label {
 }
 
 /*----- DIALOG BOX END---------*/
+
+#pagination-controls {
+    width: fit-content;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    padding: 5rem 0;
+    gap: 1rem;
+}
+#page-left {
+    justify-self: start;
+}
+
+#page-num {
+    justify-self: center;
+}
+
+#page-right {
+    justify-self: end;
+}
+#page-left, #page-right
+{
+    padding: 0;
+    margin: 0;
+    font-size: 2rem;
+    width: 4rem;
+}
+#page-num {
+    padding: 0;
+    margin: 0;
+    font-size: 2rem;
+}
 
 
 #no-tickets {

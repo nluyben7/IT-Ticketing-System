@@ -8,11 +8,7 @@
   <link href="/static/ticketstyles.css" rel="stylesheet">
 </head>
 <body>
-  <h1 id="page-title">All Tickets</h1>
-  <!-- <h1 id="active-page-title">Active Tickets</h1>
-  <h1 id="resolved-page-title" style="display: none;">Resolved Tickets</h1>
-  <h1 id="unassigned-page-title" style="display: none;">Unassigned Tickets</h1>
-  <h1 id="all-page-title" style="display: none;">All Tickets</h1> -->
+  <h1 id="page-title"> {{tab | capitalize}} Tickets</h1>
   <a class="return-arrow" onclick="logout()">← Log Out</a>
   <nav id="ticket-list-navbar">
     <div id="navbar-left">
@@ -45,10 +41,10 @@
       </form>
       <button id="toggle-display-btn" class="toggle btn" onclick="toggleLayout()" ><span id="toggle-icon">☰</span></button>
       <div id="status-btn-container">
-        <button id="unassigned-btn" class="btn" onclick="showTab('unassigned')">Unassigned Tickets</button>
-        <button id="active-btn" class="btn" onclick="showTab('active')" >Active Tickets</button>
-        <button id="resolved-btn" class="btn" onclick="showTab('resolved')">Resolved Tickets</button>
-        <button id="all-btn" class="btn" onclick="showTab('all')" style="display: none;">All Tickets</button>
+        <a id="unassigned-btn" class="btn" href="/tickets/view?tab=unassigned&amp;page={{page_num}}">Unassigned Tickets</a>
+        <a id="active-btn" class="btn" href="/tickets/view?tab=active&amp;page={{page_num}}">Active Tickets</a>
+        <a id="resolved-btn" class="btn" href="/tickets/view?tab=resolved&amp;page={{page_num}}">Resolved Tickets</a>
+        <a id="all-btn" class="btn" href="/tickets/view?tab=all&amp;page={{page_num}}">All Tickets</a>
       </div>
     </div>
   </nav>
@@ -78,53 +74,23 @@
   </section>
   {% else %}
       <p id="no-tickets">No tickets yet.</p>
+  {% endif %}
+
+  <div id="pagination-controls">
+    {% if page_num > 1 %}
+    <a id="page-left" class="btn" href="/tickets/view?tab={{tab}}&page={{page_num-1}}">&lt;</a>
+    {% else %}
+    <div id="page-left"></div>  
     {% endif %}
 
-  <!-- <section id="active-ticket-list" class="ticket-list grid-view">
-    {% if tickets %}
-      {% for ticket in tickets if ticket.status == "active" %}
-        <a href="/tickets/view/{{ticket.id}}">
-          <div class="ticket-card">
-            <p class="id-badge">ID: {{ ticket.id }}</p>
-            <div class="ticket-header">
-              <p class="badge">{{ ticket.issue_type }}</p>
-              
-              <div class="priority priority-{{ ticket.priority }}">{{ ticket.priority }}</div>
-              
-            </div>
-            <h3>{{ ticket.summary }}</h3>
-            <p class="ticket-meta">{{ ticket.ticketer_name }} — {{ ticket.email }}</p>
-            <p class="ticket-description">{{ ticket.description | truncate(240) }}</p>
-          </div>
-        </a>
-      {% endfor %}
-    {% else %}
-      <p>No tickets yet.</p>
-    {% endif %}
-  </section>
+    <div id="page-num">Page {{ page_num }}</div>
 
-  <section id="resolved-ticket-list" class="ticket-list grid-view" style="display: none">
-    {% if tickets %}
-      {% for ticket in tickets if ticket.status == "resolved" %}
-        <a href="/tickets/view/{{ticket.id}}">
-          <div class="ticket-card">
-            <p class="id-badge">ID: {{ ticket.id }}</p>
-            <div class="ticket-header">
-              <p class="badge">{{ ticket.issue_type }}</p>
-              
-              <div class="priority priority-inactive">{{ ticket.status }}</div>
-              
-            </div>
-            <h3>{{ ticket.summary }}</h3>
-            <p class="ticket-meta">{{ ticket.ticketer_name }} — {{ ticket.email }}</p>
-            <p class="ticket-description">{{ ticket.description | truncate(240) }}</p>
-          </div>
-        </a>
-      {% endfor %}
+    {% if has_next %}
+    <a id="page-right" class="btn" href="/tickets/view?tab={{tab}}&page={{page_num+1}}">&gt;</a>
     {% else %}
-      <p>No tickets yet.</p>
+    <div id="page-right"></div> 
     {% endif %}
-  </section> -->
+</div>
 
   
 
@@ -179,69 +145,69 @@
           alert('An error occurred. Please try again.');
         });
     }
-    function showTab(tab) {
-        switch(tab) {
-          case 'unassigned':
-            document.getElementById('page-title').textContent = 'Unassigned Tickets';
+    // function showTab(tab) {
+    //     switch(tab) {
+    //       case 'unassigned':
+    //         document.getElementById('page-title').textContent = 'Unassigned Tickets';
 
-            document.getElementById('unassigned-btn').style.display = 'none';
-            document.getElementById('active-btn').style.display = 'inline-block';
-            document.getElementById('resolved-btn').style.display = 'inline-block';
-            document.getElementById('all-btn').style.display = 'inline-block';
-            break;
-          case 'active':
-            document.getElementById('page-title').textContent = 'Active Tickets';
+    //         document.getElementById('unassigned-btn').style.display = 'none';
+    //         document.getElementById('active-btn').style.display = 'inline-block';
+    //         document.getElementById('resolved-btn').style.display = 'inline-block';
+    //         document.getElementById('all-btn').style.display = 'inline-block';
+    //         break;
+    //       case 'active':
+    //         document.getElementById('page-title').textContent = 'Active Tickets';
 
-            document.getElementById('unassigned-btn').style.display = 'inline-block';
-            document.getElementById('active-btn').style.display = 'none';
-            document.getElementById('resolved-btn').style.display = 'inline-block';
-            document.getElementById('all-btn').style.display = 'inline-block';
-            break;
-          case 'resolved':
-            document.getElementById('page-title').textContent = 'Resolved Tickets';
+    //         document.getElementById('unassigned-btn').style.display = 'inline-block';
+    //         document.getElementById('active-btn').style.display = 'none';
+    //         document.getElementById('resolved-btn').style.display = 'inline-block';
+    //         document.getElementById('all-btn').style.display = 'inline-block';
+    //         break;
+    //       case 'resolved':
+    //         document.getElementById('page-title').textContent = 'Resolved Tickets';
 
-            document.getElementById('unassigned-btn').style.display = 'inline-block';
-            document.getElementById('active-btn').style.display = 'inline-block';
-            document.getElementById('resolved-btn').style.display = 'none';
-            document.getElementById('all-btn').style.display = 'inline-block';
-            break;
-          case 'all':
-            document.getElementById('page-title').textContent = 'All Tickets';
+    //         document.getElementById('unassigned-btn').style.display = 'inline-block';
+    //         document.getElementById('active-btn').style.display = 'inline-block';
+    //         document.getElementById('resolved-btn').style.display = 'none';
+    //         document.getElementById('all-btn').style.display = 'inline-block';
+    //         break;
+    //       case 'all':
+    //         document.getElementById('page-title').textContent = 'All Tickets';
 
-            document.getElementById('unassigned-btn').style.display = 'inline-block';
-            document.getElementById('active-btn').style.display = 'inline-block';
-            document.getElementById('resolved-btn').style.display = 'inline-block';
-            document.getElementById('all-btn').style.display = 'none';
-            break;
-        }  
-        const tickets = document.querySelectorAll('#ticket-list a');
-        if(tab === 'all') {
-          tickets.forEach(ticket => ticket.style.display = '');
-          return;
-        }
-        else if (tab=='active') {
-          tickets.forEach(ticket => {
-            const priority_text = ticket.querySelector('.priority').textContent.toLowerCase();
-            if (priority_text == 'resolved' || priority_text == 'unassigned') {
-              ticket.style.display = 'none';
-            } else {
-              ticket.style.display = '';
-            }
-          });
-        }
-        else{
-          tickets.forEach(ticket => {
-            const priority_text = ticket.querySelector('.priority').textContent.toLowerCase();
-            if (priority_text != tab) {
-              ticket.style.display = 'none';
-            } else {
-              ticket.style.display = '';
-            }
-          });
-        }
+    //         document.getElementById('unassigned-btn').style.display = 'inline-block';
+    //         document.getElementById('active-btn').style.display = 'inline-block';
+    //         document.getElementById('resolved-btn').style.display = 'inline-block';
+    //         document.getElementById('all-btn').style.display = 'none';
+    //         break;
+    //     }  
+    //     const tickets = document.querySelectorAll('#ticket-list a');
+    //     if(tab === 'all') {
+    //       tickets.forEach(ticket => ticket.style.display = '');
+    //       return;
+    //     }
+    //     else if (tab=='active') {
+    //       tickets.forEach(ticket => {
+    //         const priority_text = ticket.querySelector('.priority').textContent.toLowerCase();
+    //         if (priority_text == 'resolved' || priority_text == 'unassigned') {
+    //           ticket.style.display = 'none';
+    //         } else {
+    //           ticket.style.display = '';
+    //         }
+    //       });
+    //     }
+    //     else{
+    //       tickets.forEach(ticket => {
+    //         const priority_text = ticket.querySelector('.priority').textContent.toLowerCase();
+    //         if (priority_text != tab) {
+    //           ticket.style.display = 'none';
+    //         } else {
+    //           ticket.style.display = '';
+    //         }
+    //       });
+    //     }
         
         
-    }
+    // }
 
     function toggleLayout() { 
         document.querySelectorAll('.ticket-list').forEach(list => {
@@ -253,16 +219,12 @@
         icon.textContent = isListView ? '⊞' : '☰';
     }
 
-    if(window.location.hash == '#all') {
-      showTab('all');
-    } else if (window.location.hash === '#unassigned') {
-      showTab('unassigned');
-    } else if (window.location.hash === '#active') {
-      console.log("hi");
-      showTab('active');
-    } else if (window.location.hash === '#resolved') {
-      showTab('resolved');  // default
-    }
+    find_it = '#' + '{{tab}}' +'-btn';
+    console.log(find_it);
+    disabled_button = document.querySelector(find_it);
+    disabled_button.style.display = 'none';
+ 
+
   </script>
 </body>
 </html>

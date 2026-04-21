@@ -1,7 +1,8 @@
 status expansion (expand "active" status)
 
+maybe swap from session to JWT tokens
 
-Pagination
+
 
 
 dialog pop up confirm for logging out?
@@ -17,8 +18,10 @@ email notification system DONE
 
 
 REFACTORING: DONE
-filter tickets individuially, remove the 3 separate lists
+filter tickets individually, remove the 3 separate lists
 
 Real Database DONE
 
 separate active tickets by assignments (if ticket specialist assigned != current username, cant change it) DONE
+
+Pagination DONE

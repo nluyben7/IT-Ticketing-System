@@ -45,7 +45,7 @@
         {% elif ticket.status == "resolved" %}
         <section id="resolution-explanation-container">
             <h2>Resolution Details</h2>
-            <p id="resolver-name">Resolved By: {{ ticket.specialist_username_assigned }}</p>
+            <p id="resolver-name">Resolved By: {{specialist.name}}</p>
             <p id="resolution-explanation">{{ ticket.resolution_details }}</p>
         </section>
         {% endif %}

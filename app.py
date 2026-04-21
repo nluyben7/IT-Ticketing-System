@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template, jsonify, session
+from flask import Flask, request, render_template, jsonify, session, redirect
 from datetime import datetime
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
@@ -15,6 +15,8 @@ app.secret_key = "supersecretkey"  # In production, use a secure random key and 
 email_notifier = EmailNotifier()
 init_db()
 seed_db()
+
+TICKETS_PER_PAGE = 15
 
 
 
@@ -119,11 +121,25 @@ def getTickets():
 def viewTickets():
     auth_error = it_only_check()
     if auth_error:
-        return render_template("login.html")  
+        return render_template("login.html") 
+    page = request.args.get('page', 1, type=int)
+    tab = request.args.get('tab','all') 
+    if page < 1:
+        return jsonify({"error": "invalid page number"}), 400 
+    if not tab in ['unassigned','active','resolved', 'all']:
+        return jsonify({"error": "invalid tab type"}), 400
     db = get_db()
-    tickets = db.execute('SELECT * FROM tickets').fetchall()
+    if tab == 'all':
+        total = db.execute('SELECT COUNT(*) FROM tickets').fetchone()[0]
+        tickets = db.execute('SELECT * FROM tickets LIMIT ? OFFSET ?', (TICKETS_PER_PAGE, (page-1) * TICKETS_PER_PAGE,)).fetchall()
+    else:
+        total = db.execute('SELECT COUNT(*) FROM tickets WHERE status = ?', (tab,)).fetchone()[0]
+        tickets = db.execute('SELECT * FROM tickets WHERE status = ? LIMIT ? OFFSET ?', (tab, TICKETS_PER_PAGE, (page-1) * TICKETS_PER_PAGE,)).fetchall()
     db.close()
-    return render_template("tickets.html", tickets=[dict(t) for t in tickets])
+    max_page = max(1, -(-total // TICKETS_PER_PAGE))
+    if page > max_page:
+        return redirect(f'/tickets/view?tab={tab}&page={max_page}')
+    return render_template("tickets.html", tickets=[dict(t) for t in tickets], tab=tab, page_num = page, has_next=(page * TICKETS_PER_PAGE) < total)
 
 @app.route('/tickets/view/<int:ticket_id>', methods=['GET'])
 def viewTicketById(ticket_id):
