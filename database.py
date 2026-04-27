@@ -477,9 +477,13 @@ def init_db():
             tickets_claimed INTEGER DEFAULT 0,
             tickets_active INTEGER DEFAULT 0,
             tickets_resolved INTEGER DEFAULT 0,
-            total_resolution_time_minutes INTEGER DEFAULT 0
+            total_resolution_time_hours REAL DEFAULT 0
             )  
             ''')
+    db.execute('''CREATE INDEX IF NOT EXISTS idx_tickets_status ON tickets(status) ''')
+    db.execute('''CREATE INDEX IF NOT EXISTS idx_tickets_specialist ON tickets(specialist_username_assigned) ''')
+    db.execute('''CREATE INDEX IF NOT EXISTS idx_tickets_issue_type ON tickets(issue_type) ''')
+    db.execute('''CREATE INDEX IF NOT EXISTS idx_tickets_priority ON tickets(priority) ''')
     
     #TO DO: add index on status (and other fields)
     db.commit()

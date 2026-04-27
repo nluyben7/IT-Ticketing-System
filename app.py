@@ -4,11 +4,13 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 import heapq
 import bcrypt
+import logging
 from email_notifier import EmailNotifier
 
 from database import get_db, init_db, seed_db
 
 
+TICKETS_PER_PAGE = 15
 app = Flask(__name__)
 app.secret_key = "supersecretkey"  # In production, use a secure random key and keep it secret
 
@@ -16,32 +18,47 @@ email_notifier = EmailNotifier()
 init_db()
 seed_db()
 
-TICKETS_PER_PAGE = 15
-
 
 
 #----------------------------- SIMILAR TICKETS FINDING -----------------------------
+
+tf_idf_cache = {
+    "vectorizer": None,
+    "matrix": None,
+    "tickets": [],
+}
+
 def formatTicketText(ticket):
     text = ticket["summary"] + " " + ticket["description"]
     if ticket["resolution_details"]:
         text += " " + ticket["resolution_details"]
     return text
 
-def findSimilarTickets(ticket, number_of_similar=3, threshold=0.1):
+def rebuild_tfidf_cache():
     db = get_db()
-    candidates = db.execute('SELECT * FROM tickets WHERE id != ?', (ticket["id"],)).fetchall()
-    db.close()
-    if not candidates:
-        return []
+    all_tickets = [dict(row) for row in db.execute('SELECT id, summary, description, resolution_details FROM tickets').fetchall()]
+    if not all_tickets:
+        logging.error("Error rebuilding tf_idf_cache")
+    texts = [formatTicketText(t) for t in all_tickets]
+    matrix = tf_idf_cache["vectorizer"].fit_transform(texts)
+    tf_idf_cache["matrix"] = matrix
+    tf_idf_cache["tickets"] = all_tickets
+
+def findSimilarTickets(ticket, number_of_similar=3, threshold=0.1):
+    
     target_text = formatTicketText(ticket)
-    candidate_texts = [formatTicketText(t) for t in candidates]
+    query_vector = tf_idf_cache["vectorizer"].transform([target_text]) 
+    scores = cosine_similarity(query_vector, tf_idf_cache["matrix"]).flatten()
 
-    vectorizer = TfidfVectorizer(stop_words='english')
-    matrix = vectorizer.fit_transform([target_text] + candidate_texts)
-    scores = cosine_similarity(matrix[0], matrix[1:]).flatten()
-
-    closest_tickets = heapq.nlargest(number_of_similar, zip(candidates, scores), key=lambda x: x[1])
-    return [ticket for ticket, score in closest_tickets if score >= threshold]
+    closest_tickets = heapq.nlargest(number_of_similar + 1, zip(tf_idf_cache["tickets"], scores), key=lambda x: x[1])
+    similar_ids = [t["id"] for t, score in closest_tickets if t["id"] != ticket["id"] and score >= threshold]
+    if not similar_ids:
+        return []
+    db = get_db()
+    placeholders = ','.join('?' * len(similar_ids))
+    similar_tickets = [dict(t) for t in db.execute(f'SELECT * from tickets WHERE id IN ({placeholders}) ', similar_ids).fetchall()]
+    db.close()
+    return similar_tickets
 
 def searchTickets(query):
     db = get_db()
@@ -61,6 +78,12 @@ def searchTickets(query):
         "submission_date": None,
     }
     return findSimilarTickets(pseudo_ticket, number_of_similar=total_count, threshold=0.05)
+
+def init_tf_idf_cache():
+    tf_idf_cache["vectorizer"] = TfidfVectorizer(stop_words='english')
+    rebuild_tfidf_cache()
+init_tf_idf_cache()
+
 
 # ----------------------------- SIMILAR TICKETS FINDING END -----------------------------
 
@@ -173,10 +196,17 @@ def createTicket():
         return jsonify({"error": "fields cannot be empty"}), 400
 
     db = get_db()
-    cursor = db.execute('''INSERT INTO tickets (ticketer_name, ticketer_email, issue_type, summary, description, status, submission_date)
-               VALUES (?, ?, ?, ?, ?, 'unassigned', ?)''', (body["ticketer_name"], body["ticketer_email"], body["issue_type"], body["summary"], body["description"], datetime.now().strftime("%b %d, %Y  %H:%M")))
-    db.commit()
-    new_ticket = dict(db.execute('SELECT * FROM tickets WHERE id = ?', (cursor.lastrowid,)).fetchone())
+    try:
+        cursor = db.execute('''INSERT INTO tickets (ticketer_name, ticketer_email, issue_type, summary, description, status, submission_date)
+                VALUES (?, ?, ?, ?, ?, 'unassigned', ?)''', (body["ticketer_name"], body["ticketer_email"], body["issue_type"], body["summary"], body["description"], datetime.now().strftime("%b %d, %Y  %H:%M")))
+        db.commit()
+        new_ticket = dict(db.execute('SELECT * FROM tickets WHERE id = ?', (cursor.lastrowid,)).fetchone())
+    except Exception as e:
+        db.rollback()
+        logging.error(f"Error creating ticket: {e}")
+        return jsonify({"error" : "internal server error"}), 500
+    finally:
+        db.close()
 
     email_notifier.notify_async(new_ticket, "submission")
     return jsonify(new_ticket), 201 
@@ -188,51 +218,74 @@ def createTicket():
 def claimTicket(ticket_id, priority):
     if not priority:
         return jsonify({"error": "setting priority is required to claim a ticket"}), 400
-    
-    db = get_db()
-    ticket = dict(db.execute('SELECT * FROM tickets WHERE id = ?', (ticket_id,)).fetchone())
+    try:
+        db = get_db()
+        row = db.execute('SELECT * FROM tickets WHERE id = ?', (ticket_id,)).fetchone()
+        if not row:
+            db.close()
+            return jsonify({"error": "ticket not found"}), 404
+        ticket = dict(row)
+        if ticket.get("status") == "resolved":
+            db.close()
+            return jsonify({"error": "ticket already resolved"}), 400
+        if ticket.get("status") == "active":
+            db.close()
+            return jsonify({"error": "ticket is already active"}), 400
+        
+        db.execute('''UPDATE tickets
+                    SET status = 'active', priority = ?, specialist_username_assigned = ?, assignment_date = ?
+                    WHERE id = ?''',
+                    (priority, session.get("username"), datetime.now().strftime("%b %d, %Y  %H:%M"), ticket_id))
+        db.execute('''UPDATE it_specialists SET tickets_claimed = tickets_claimed + 1, tickets_active = tickets_active + 1 WHERE username = ? ''', (session.get("username"),))
+        db.commit()
+        ticket = dict(db.execute('SELECT * FROM tickets WHERE id = ?', (ticket_id,)).fetchone())
+        
+        email_notifier.notify_async(ticket, "assignment")
+        return jsonify({"message" : f"ticket {ticket_id} claimed and now active"}), 200
+    except Exception as e:
+        db.rollback()
+        #todo: error logging
+        return jsonify({"error":"internal server error"}), 500
+    finally:
+        db.close()
 
-    if not ticket:
-        db.close()
-        return jsonify({"error": "ticket not found"}), 404
-    if ticket.get("status") == "resolved":
-        db.close()
-        return jsonify({"error": "ticket already resolved"}), 400
-    if ticket.get("status") == "active":
-        db.close()
-        return jsonify({"error": "ticket is already active"}), 400
-    
-    db.execute('''UPDATE tickets
-                SET status = 'active', priority = ?, specialist_username_assigned = ?, assignment_date = ?
-                WHERE id = ?''',
-                (priority, session.get("username"), datetime.now().strftime("%b %d, %Y  %H:%M"), ticket_id))
-    db.commit()
-
-    email_notifier.notify_async(ticket, "assignment")
-    return jsonify({"message" : f"ticket {ticket_id} claimed and now active"}), 200
     
 def resolveTicket(ticket_id, resolution_details):
     if not resolution_details:
         return jsonify({"error": "resolution_details are required to resolve a ticket"}), 400
+    
     db = get_db()
-    ticket = dict(db.execute('SELECT * FROM tickets WHERE id = ?', (ticket_id,)).fetchone())
-    if not ticket:
+    try:
+        row = db.execute('SELECT * FROM tickets WHERE id = ?', (ticket_id,)).fetchone()
+        if not row:
+            db.close()
+            return jsonify({"error": "ticket not found"}), 404
+        ticket = dict(row)
+        if ticket.get("status") != "active":
+            db.close()
+            return jsonify({"error": "only active tickets can be resolved"}), 400
+        if ticket.get("specialist_username_assigned") != session.get("username"):
+            db.close()
+            return jsonify({"error": "you can only resolve tickets assigned to you"}), 403
+        
+        db.execute('''UPDATE tickets 
+                SET status = 'resolved', resolution_details = ?, resolution_date = ?
+                WHERE id = ?''',
+                (resolution_details, datetime.now().strftime("%b %d, %Y  %H:%M"), ticket_id))
+        db.execute('''UPDATE it_specialists SET tickets_resolved = tickets_resolved + 1, tickets_active = tickets_active - 1 WHERE username = ? ''', (session.get("username"),))
+        resolution_time_hours = (datetime.now() - datetime.strptime(ticket["assignment_date"], "%b %d, %Y  %H:%M")).total_seconds() / 3600
+        db.execute('''UPDATE it_specialists SET total_resolution_time_hours = total_resolution_time_hours + ? 
+                WHERE username = ? ''', (resolution_time_hours, session.get("username"),))
+        db.commit()
+        ticket = dict(db.execute('SELECT * FROM tickets WHERE id = ?', (ticket_id,)).fetchone())
+        email_notifier.notify_async(ticket, "resolution")
+        return jsonify({"message" : f"ticket {ticket_id} resolved"}), 200
+    except Exception as e:
+        db.rollback()
+        #todo: error logging
+        return jsonify({"error":"internal server error"}), 500
+    finally:
         db.close()
-        return jsonify({"error": "ticket not found"}), 404
-    if ticket.get("status") != "active":
-        db.close()
-        return jsonify({"error": "only active tickets can be resolved"}), 400
-    if ticket.get("specialist_username_assigned") != session.get("username"):
-        db.close()
-        return jsonify({"error": "you can only resolve tickets assigned to you"}), 403
-    db.execute('''UPDATE tickets 
-               SET status = 'resolved', resolution_details = ?, resolution_date = ?
-               WHERE id = ?''',
-               (resolution_details, datetime.now().strftime("%b %d, %Y  %H:%M"), ticket_id))
-    db.commit()
-
-    email_notifier.notify_async(ticket, "resolution")
-    return jsonify({"message" : f"ticket {ticket_id} resolved"}), 200
 
 
 def changeTicketStatus(ticket_id, new_status, resolution_details, priority):
@@ -254,22 +307,26 @@ def changePriority(ticket_id, new_priority):
         return jsonify({"error" : "priority must be low, medium, high, or critical"}), 400
     
     db = get_db()
-    ticket = dict(db.execute('SELECT * from tickets WHERE id=?', (ticket_id,)).fetchone())
-    if not ticket:
+    try:
+        row = db.execute('SELECT * from tickets WHERE id=?', (ticket_id,)).fetchone()
+        if not row:
+            return jsonify({"error": "ticket not found"}), 404
+        ticket = dict(row)
+        if ticket.get("status") != "active":
+            return jsonify({"error": "only active tickets can have their priority updated"}), 400
+        if ticket.get("specialist_username_assigned") != session.get("username"):
+            return jsonify({"error": "you can only update the priority of tickets assigned to you"}), 403
+        db.execute('''UPDATE tickets
+                SET priority = ?
+                WHERE id = ?''',
+                (new_priority, ticket_id))
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        logging.error(f"Error changing ticket priority for ticket #{ticket_id}: {e}")
+        return jsonify({"error": "internal server error"}),500
+    finally:
         db.close()
-        return jsonify({"error": "ticket not found"}), 404
-    if ticket.get("status") != "active":
-        db.close()
-        return jsonify({"error": "only active tickets can have their priority updated"}), 400
-    if ticket.get("specialist_username_assigned") != session.get("username"):
-        db.close()
-        return jsonify({"error": "you can only update the priority of tickets assigned to you"}), 403
-    db.execute('''UPDATE tickets
-               SET priority = ?
-               WHERE id = ?''',
-               (new_priority, ticket_id))
-    db.commit()
-
     ticket["priority"] = new_priority
     return jsonify(ticket), 200
     
@@ -312,3 +369,4 @@ def searchTicketsRoute():
 
 if __name__ == '__main__':
     app.run(debug=True)
+

@@ -1,6 +1,7 @@
 import smtplib
 import os
 import threading
+import logging
 from email.mime.text import MIMEText
 
 
@@ -51,23 +52,22 @@ class EmailNotifier:
         body = f"Hello {recipient_name},\n\nOur IT specialist {specialist_name} has marked your ticket with ID {ticket_id} as resolved. if you have any further issues or questions, please feel free to reach out or submit a new ticket."
         self._queue_email({"to": recipient_email, "subject": subject, "body": body})
 
-    # def _form_ticket_priority_change_email(self, recipient_name, recipient_email, ticket_id, new_priority):
-    #     subject = f"Ticket {ticket_id} Priority Updated"
-    #     body = f"Hello {recipient_name},\n\nThe priority of your ticket with ID {ticket_id} has been updated to {new_priority}. We will continue to work on resolving your issue as quickly as possible."
-    #     self._queue_email({"to": recipient_email, "subject": subject, "body": body})
-
     
     #
     def notify_ticketer(self, ticket, notification_type):
-        dispatch = {
-            "submission": lambda : self._form_ticket_submission_email(ticket["ticketer_name"], ticket["ticketer_email"], ticket["id"]),
-            "assignment": lambda : self._form_ticket_assignment_email(ticket["ticketer_name"], ticket["ticketer_email"], ticket["id"], ticket["specialist_assigned"]),
-            "resolution": lambda : self._form_ticket_resolution_email(ticket["ticketer_name"], ticket["ticketer_email"], ticket["id"], ticket["specialist_assigned"])
-        }
-        handler = dispatch.get(notification_type)
-        if not handler:
-            raise ValueError(f"Unknown notification type: {notification_type}")
-        handler()
+        try:
+            dispatch = {
+                "submission": lambda : self._form_ticket_submission_email(ticket["ticketer_name"], ticket["ticketer_email"], ticket["id"]),
+                "assignment": lambda : self._form_ticket_assignment_email(ticket["ticketer_name"], ticket["ticketer_email"], ticket["id"], ticket["specialist_username_assigned"]),
+                "resolution": lambda : self._form_ticket_resolution_email(ticket["ticketer_name"], ticket["ticketer_email"], ticket["id"], ticket["specialist_username_assigned"])
+            }
+            handler = dispatch.get(notification_type)
+            if not handler:
+                raise ValueError(f"Unknown notification type: {notification_type}")
+            handler()
+        except Exception as e:
+            logging.error(f"Email notification failed for ticket # {ticket.get("id")} type {notification_type}: {e}")
+
 
     def notify_async(self, ticket, notification_type):
         thread = threading.Thread(target=self.notify_ticketer, args=(ticket, notification_type))
