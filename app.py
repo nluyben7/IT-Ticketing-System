@@ -1,5 +1,5 @@
 from flask import Flask, request, render_template, jsonify, session, redirect
-from datetime import datetime
+from datetime import datetime, timezone
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 import heapq
@@ -198,9 +198,10 @@ def createTicket():
     db = get_db()
     try:
         cursor = db.execute('''INSERT INTO tickets (ticketer_name, ticketer_email, issue_type, summary, description, status, submission_date)
-                VALUES (?, ?, ?, ?, ?, 'unassigned', ?)''', (body["ticketer_name"], body["ticketer_email"], body["issue_type"], body["summary"], body["description"], datetime.now().strftime("%b %d, %Y  %H:%M")))
+                VALUES (?, ?, ?, ?, ?, 'unassigned', ?)''', (body["ticketer_name"], body["ticketer_email"], body["issue_type"], body["summary"], body["description"], datetime.now(timezone.utc).isoformat()))
         db.commit()
         new_ticket = dict(db.execute('SELECT * FROM tickets WHERE id = ?', (cursor.lastrowid,)).fetchone())
+        rebuild_tfidf_cache()
     except Exception as e:
         db.rollback()
         logging.error(f"Error creating ticket: {e}")
@@ -235,7 +236,7 @@ def claimTicket(ticket_id, priority):
         db.execute('''UPDATE tickets
                     SET status = 'active', priority = ?, specialist_username_assigned = ?, assignment_date = ?
                     WHERE id = ?''',
-                    (priority, session.get("username"), datetime.now().strftime("%b %d, %Y  %H:%M"), ticket_id))
+                    (priority, session.get("username"), datetime.now(timezone.utc).isoformat(), ticket_id))
         db.execute('''UPDATE it_specialists SET tickets_claimed = tickets_claimed + 1, tickets_active = tickets_active + 1 WHERE username = ? ''', (session.get("username"),))
         db.commit()
         ticket = dict(db.execute('SELECT * FROM tickets WHERE id = ?', (ticket_id,)).fetchone())
@@ -244,7 +245,7 @@ def claimTicket(ticket_id, priority):
         return jsonify({"message" : f"ticket {ticket_id} claimed and now active"}), 200
     except Exception as e:
         db.rollback()
-        #todo: error logging
+        logging.error(f"Error claiming ticket #{ticket_id}: {e}")
         return jsonify({"error":"internal server error"}), 500
     finally:
         db.close()
@@ -258,31 +259,31 @@ def resolveTicket(ticket_id, resolution_details):
     try:
         row = db.execute('SELECT * FROM tickets WHERE id = ?', (ticket_id,)).fetchone()
         if not row:
-            db.close()
             return jsonify({"error": "ticket not found"}), 404
         ticket = dict(row)
         if ticket.get("status") != "active":
-            db.close()
             return jsonify({"error": "only active tickets can be resolved"}), 400
         if ticket.get("specialist_username_assigned") != session.get("username"):
-            db.close()
             return jsonify({"error": "you can only resolve tickets assigned to you"}), 403
-        
         db.execute('''UPDATE tickets 
                 SET status = 'resolved', resolution_details = ?, resolution_date = ?
                 WHERE id = ?''',
-                (resolution_details, datetime.now().strftime("%b %d, %Y  %H:%M"), ticket_id))
+                (resolution_details, datetime.now(timezone.utc).isoformat(), ticket_id))
         db.execute('''UPDATE it_specialists SET tickets_resolved = tickets_resolved + 1, tickets_active = tickets_active - 1 WHERE username = ? ''', (session.get("username"),))
-        resolution_time_hours = (datetime.now() - datetime.strptime(ticket["assignment_date"], "%b %d, %Y  %H:%M")).total_seconds() / 3600
+        
+        resolution_time_hours = (datetime.now(timezone.utc) - datetime.fromisoformat(ticket["assignment_date"].replace("Z", "+00:00"))).total_seconds() / 3600
+        print(resolution_time_hours)
         db.execute('''UPDATE it_specialists SET total_resolution_time_hours = total_resolution_time_hours + ? 
                 WHERE username = ? ''', (resolution_time_hours, session.get("username"),))
         db.commit()
+        
         ticket = dict(db.execute('SELECT * FROM tickets WHERE id = ?', (ticket_id,)).fetchone())
+        rebuild_tfidf_cache()
         email_notifier.notify_async(ticket, "resolution")
         return jsonify({"message" : f"ticket {ticket_id} resolved"}), 200
     except Exception as e:
         db.rollback()
-        #todo: error logging
+        logging.error(f"Error resolving ticket #{ticket_id}: {e}")
         return jsonify({"error":"internal server error"}), 500
     finally:
         db.close()

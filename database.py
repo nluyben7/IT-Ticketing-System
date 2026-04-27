@@ -14,7 +14,7 @@ seeded_tickets = [
     "status": "unassigned",
     "resolution_details": None,
     "specialist_username_assigned": None,
-    "submission_date": "2024-06-01T10:00:00Z",
+    "submission_date": "2026-04-01T09:15:00Z",
     "assignment_date": None,
     "resolution_date": None
     },
@@ -30,7 +30,7 @@ seeded_tickets = [
     "resolution_details": None,
     "resolution_date": None,
     "assignment_date": None,
-    "submission_date": "Apr 01, 2026  09:15 AM"
+    "submission_date": "2026-04-02T14:37:22Z"
     },
     {
     "ticketer_name": "Miles Dyson",
@@ -44,7 +44,7 @@ seeded_tickets = [
     "resolution_details": None,
     "resolution_date": None,
     "assignment_date": None,
-    "submission_date": "Apr 01, 2026  09:45 AM"
+    "submission_date": "2026-04-03T08:05:10Z"
     },
     {
     "ticketer_name": "Tariq Farouk",
@@ -58,7 +58,7 @@ seeded_tickets = [
     "resolution_details": None,
     "resolution_date": None,
     "assignment_date": None,
-    "submission_date": "Apr 01, 2026  10:00 AM"
+    "submission_date": "2026-04-04T19:48:55Z"
     },
     {
     "ticketer_name": "Linda Park",
@@ -72,7 +72,7 @@ seeded_tickets = [
     "resolution_details": None,
     "resolution_date": None,
     "assignment_date": None,
-    "submission_date": "Apr 01, 2026  10:30 AM"
+    "submission_date": "2026-04-05T11:22:40Z"
     },
     {
     "ticketer_name": "Doug Rattmann",
@@ -86,7 +86,7 @@ seeded_tickets = [
     "resolution_details": None,
     "resolution_date": None,
     "assignment_date": None,
-    "submission_date": "Apr 01, 2026  10:45 AM"
+    "submission_date": "2026-04-06T16:09:13Z"
     },
     {
     "ticketer_name": "Ellen Ripley",
@@ -99,8 +99,8 @@ seeded_tickets = [
     "specialist_username_assigned": "asmith7",
     "resolution_details": None,
     "resolution_date": None,
-    "assignment_date": "Apr 01, 2026  11:00 AM",
-    "submission_date": "Apr 01, 2026  11:00 AM"
+    "assignment_date": "2026-04-08T13:44:58Z",
+    "submission_date": "2026-04-07T07:31:29Z"
     },
     {
     "ticketer_name": "Peter Weyland",
@@ -113,8 +113,8 @@ seeded_tickets = [
     "specialist_username_assigned": "bjones",
     "resolution_details": None,
     "resolution_date": None,
-    "assignment_date": "Apr 01, 2026  11:15 AM",
-    "submission_date": "Apr 01, 2026  12:15 AM"
+    "assignment_date": "2026-04-10T10:55:41Z",
+    "submission_date": "2026-04-09T21:10:05Z"
     },
     {
     "ticketer_name": "Amanda Waller",
@@ -126,9 +126,9 @@ seeded_tickets = [
     "status": "resolved",
     "specialist_username_assigned": "asmith7",
     "resolution_details": "Updated Microsoft Office to the latest version and cleared the Excel temp files cache. Also increased the virtual memory allocation on the machine.",
-    "resolution_date": "Apr 02, 2026  02:30 PM",
-    "assignment_date": "Apr 01, 2026  01:00 PM",
-    "submission_date": "Apr 01, 2026  01:00 PM"
+    "submission_date": "2026-04-12T09:32:00Z",
+    "assignment_date": "2026-04-12T09:20:00Z",
+    "resolution_date": "2026-04-12T11:05:00Z"
     },
     {
     "ticketer_name": "Marcus Fenix",
@@ -140,9 +140,9 @@ seeded_tickets = [
     "status": "unassigned",
     "specialist_username_assigned": None,
     "resolution_details": None,
-    "resolution_date": None,
+    "submission_date": "2026-04-11T08:14:32Z",
     "assignment_date": None,
-    "submission_date": "Apr 02, 2026  09:00 AM"
+    "resolution_date": None
     },
     {
     "ticketer_name": "Jill Valentine",
@@ -156,7 +156,7 @@ seeded_tickets = [
     "resolution_details": None,
     "resolution_date": None,
     "assignment_date": None,
-    "submission_date": "Apr 02, 2026  10:00 AM"
+    "submission_date": "2026-04-13T15:27:09Z"
     },
     {
     "ticketer_name": "John Smith",
@@ -168,7 +168,7 @@ seeded_tickets = [
     "status": "unassigned",
     "resolution_details": None,
     "specialist_username_assigned": None,
-    "submission_date": "2024-06-01T10:00:00Z",
+    "submission_date": "2026-04-14T10:52:47Z",
     "assignment_date": None,
     "resolution_date": None
     },
@@ -184,7 +184,7 @@ seeded_tickets = [
     "resolution_details": None,
     "resolution_date": None,
     "assignment_date": None,
-    "submission_date": "Apr 02, 2026  11:20 AM"
+    "submission_date": "2026-04-14T10:52:47Z"
 },
 {
     "ticketer_name": "Peter Parker",
@@ -212,7 +212,7 @@ seeded_tickets = [
     "resolution_details": None,
     "resolution_date": None,
     "assignment_date": None,
-    "submission_date": "Apr 03, 2026  08:10 AM"
+    "submission_date": "2026-04-16T12:18:05Z"
 },
 {
     "ticketer_name": "Diana Prince",
@@ -240,7 +240,7 @@ seeded_tickets = [
     "resolution_details": None,
     "resolution_date": None,
     "assignment_date": None,
-    "submission_date": "Apr 03, 2026  01:15 PM"
+    "submission_date": "2026-04-16T12:18:05Z"
 },
 {
     "ticketer_name": "Natasha Romanoff",
@@ -268,7 +268,7 @@ seeded_tickets = [
     "resolution_details": None,
     "resolution_date": None,
     "assignment_date": None,
-    "submission_date": "Apr 04, 2026  10:40 AM"
+    "submission_date": "2026-04-18T17:26:41Z"
 },
 {
     "ticketer_name": "Leia Organa",
@@ -296,7 +296,7 @@ seeded_tickets = [
     "resolution_details": None,
     "resolution_date": None,
     "assignment_date": None,
-    "submission_date": "Apr 05, 2026  09:05 AM"
+    "submission_date": "2026-04-19T06:58:13Z"
 },
 {
     "ticketer_name": "Dwight Schrute",
@@ -337,8 +337,8 @@ seeded_tickets = [
     "specialist_username_assigned": "tech_asmith",
     "resolution_details": None,
     "resolution_date": None,
-    "assignment_date": "Apr 06, 2026  01:05 PM",
-    "submission_date": "Apr 06, 2026  12:10 PM"
+    "assignment_date": "2026-04-14T13:05:00Z",
+    "submission_date": "2026-04-14T13:22:00Z"
 },
 {
     "ticketer_name": "Frodo Baggins",
@@ -365,8 +365,8 @@ seeded_tickets = [
     "specialist_username_assigned": "sec_admin1",
     "resolution_details": "Account unlocked and password reset. Enabled multi-factor authentication for additional security.",
     "resolution_date": "Apr 07, 2026  02:45 PM",
-    "assignment_date": "Apr 07, 2026  01:10 PM",
-    "submission_date": "Apr 07, 2026  12:55 PM"
+    "assignment_date": "2026-04-20T08:15:00Z",
+    "submission_date": "2026-04-20T10:05:00Z"
 },
 {
     "ticketer_name": "Luke Skywalker",
@@ -393,8 +393,8 @@ seeded_tickets = [
     "specialist_username_assigned": "tech_rrossi",
     "resolution_details": None,
     "resolution_date": None,
-    "assignment_date": "Apr 08, 2026  11:30 AM",
-    "submission_date": "Apr 08, 2026  10:05 AM"
+    "assignment_date": "2026-04-16T10:40:00Z",
+    "submission_date": "2026-04-16T10:55:00Z"
 },
 {
     "ticketer_name": "Arya Stark",
@@ -522,6 +522,24 @@ def seed_db():
             it_account["hashed_password"],
             it_account["name"]
         ))
+    db.execute('''UPDATE it_specialists 
+                SET tickets_active = (
+                SELECT COUNT(*) FROM tickets WHERE status='active' AND specialist_username_assigned = it_specialists.username
+                ),
+                tickets_resolved = (
+                SELECT COUNT(*) FROM tickets WHERE status='resolved' AND specialist_username_assigned = it_specialists.username
+                );''')
+    db.execute('''UPDATE it_specialists 
+                SET total_resolution_time_hours = (
+                    SELECT COALESCE(SUM(
+                (julianday(resolution_date) - julianday(assignment_date)) * 24.0
+                ), 0)
+                FROM tickets
+                WHERE status = 'resolved'
+                AND resolution_date IS NOT NULL
+                AND assignment_date IS NOT NULL
+                AND specialist_username_assigned = it_specialists.username
+                );''')
     db.commit()
     db.close()
     print(f"Database seeded with {len(seeded_tickets)} tickets and {len(seeded_it_accounts)} accounts.")
