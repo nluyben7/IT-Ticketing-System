@@ -6,6 +6,7 @@
   <title>Quinndustries — All Tickets</title>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;600&display=swap" rel="stylesheet"/>
   <link href="/static/ticketstyles.css" rel="stylesheet">
+  <link rel="icon" href="/static/favicon.svg" type="image/svg+xml" >
 </head>
 <body>
   <h1 id="page-title"> {{tab | capitalize}} Tickets</h1>
@@ -53,7 +54,7 @@
   <section id="ticket-list" class="ticket-list grid-view">
     
       {% for ticket in tickets%}
-        <a href="/tickets/view/{{ticket.id}}">
+        <a href="/tickets/view/{{ticket.id}}?tab={{tab}}&page={{page_num}}">
           <div class="ticket-card">
             <p class="id-badge">ID: {{ ticket.id }}</p>
             <div class="ticket-header">
@@ -66,7 +67,12 @@
               {% endif %}
             </div>
             <h3>{{ ticket.summary }}</h3>
-            <p class="ticket-meta">{{ ticket.ticketer_name }} — {{ ticket.ticketer_email }}</p>
+            <p class="ticket-meta">{{ ticket.ticketer_name }} — {{ ticket.ticketer_email }} <br>
+              {% if ticket.affects_others == 1 %}
+                (affects multiple employees)
+              {% else %}
+                (affects only ticketer)
+              {% endif %}</p>
             <p class="ticket-description">{{ ticket.description | truncate(240) }}</p>
           </div>
         </a>
@@ -125,9 +131,9 @@
         const matchesIssueType = issueTypeFilters.length === 0 || issueTypeFilters.some(issueType => card.querySelector('.badge').textContent.toLowerCase() === issueType);
 
         if (matchesPriority && matchesIssueType) {
-          card.style.display = '';
+          card.parentElement.style.display = '';
         } else {
-          card.style.display = 'none';
+          card.parentElement.style.display = 'none';
         }
       });
     }

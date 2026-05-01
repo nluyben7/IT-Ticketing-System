@@ -6,4 +6,12 @@ dialog pop up confirm for logging out?
 
 think about unassigned/activ/resolved/all. Where to redirect on back buttons, maybe holding filtering state
 
+my active tickets screen
 
+affects otherss fix
+
+SLA ticket expiry by priority( 9)
+critical- assigned in 30 min, resolved in 8 hrs
+high- assigned in 30 min, resolved in 24 hrs
+medium- assigned in 1 hr, resolved in 48 hrs
+low- assigned that day, resolved in 120 hrs

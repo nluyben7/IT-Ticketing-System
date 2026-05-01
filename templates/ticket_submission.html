@@ -6,6 +6,7 @@
   <title>Quinndustries — IT Support</title>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;600&display=swap" rel="stylesheet"/>
   <link href="/static/styles.css" rel="stylesheet">
+  <link rel="icon" href="/static/favicon.svg" type="image/svg+xml" >
 </head>
 <body>
   <div class="hero"> </div>
@@ -41,6 +42,19 @@
           <option value="other">Other</option>
         </select>
         </div>
+        <div class="form-group"> 
+          <label>Does this affect just you or multiple employees?</label>
+          <div class="radio-option">
+            <input id="only-me-btn" style="display:inline;" type="radio" name="affects_others" value="0" required>
+            <label class="radio-label" for="only-me-btn">Affects me</label>
+          </div>
+          
+          <div class="radio-option">
+            <input id="others-btn" style="display:inline;" type="radio" name="affects_others" value="1">
+            <label class="radio-label" for="others-btn">Affects multiple employees</label>
+          </div>
+          
+        </div>
       </fieldset>
 
       <fieldset>
@@ -71,6 +85,7 @@
           ticketer_name: document.getElementById('name-input').value.trim(),
           ticketer_email:         document.getElementById('email-input').value.trim(),
           issue_type:    document.getElementById('category-input').value,
+          affects_others: document.querySelector('input[name="affects_others"]:checked') ?.value,
           summary:       document.getElementById('summary-input').value.trim(),
           description:   document.getElementById('description-input').value.trim(),
       };

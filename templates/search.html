@@ -5,6 +5,7 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<title>Search</title>
     <link href="/static/ticketstyles.css" rel="stylesheet">
+    <link rel="icon" href="/static/favicon.svg" type="image/svg+xml" >
 	</head>
 	<body>
 		<h1>Search Results</h1>
@@ -31,12 +32,12 @@
               {% elif ticket.status == 'active' %}
                  <div class="priority priority-{{ ticket.priority }}">{{ ticket.status }}</div>
               {% elif ticket.status == 'resolved' %}
-                 <div class="priority priority-resolved">{{ ticket.status }}</div>
+                 <div class="priority priority-inactive">{{ ticket.status }}</div>
               {% endif %}
               
             </div>
             <h3>{{ ticket.summary }}</h3>
-            <p class="ticket-meta">{{ ticket.ticketer_name }} — {{ ticket.email }}</p>
+            <p class="ticket-meta">{{ ticket.ticketer_name }} — {{ ticket.ticketer_email }}</p>
             <p class="ticket-description">{{ ticket.description | truncate(240) }}</p>
           </div>
         </a>

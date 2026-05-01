@@ -169,6 +169,8 @@ def viewTicketById(ticket_id):
     auth_error = it_only_check()
     if auth_error:
         return auth_error
+    page = request.args.get('page', 1, type=int)
+    tab = request.args.get('tab','all') 
     db = get_db()
     ticket = dict(db.execute('SELECT * FROM tickets WHERE id = ?', (ticket_id,)).fetchone())
     if not ticket:
@@ -182,23 +184,26 @@ def viewTicketById(ticket_id):
         print(specialist["name"])
     
     return render_template("ticket_details.html", ticket=ticket, related_tickets=findSimilarTickets(ticket),
-                            specialist = specialist, username=session.get("username"))
+                            specialist = specialist, tab=tab,page_num=page, username=session.get("username"))
 
 @app.route('/tickets', methods=['POST'])
 def createTicket():
     body = request.get_json()
-    required_fields = ["ticketer_name","ticketer_email","issue_type", "summary", "description"]
+    required_fields = ["ticketer_name","ticketer_email","issue_type", "affects_others", "summary", "description"]
 
     #input checking
     if not body or not all( field in body for field in required_fields):
         return jsonify({"error": "ticketer_name, ticketer_email, issue_type, summary, and description are all required fields"}), 400
     if not all(body[field].strip() for field in required_fields):
         return jsonify({"error": "fields cannot be empty"}), 400
-
+    print(body["affects_others"])
+    if body.get("affects_others") not in ["1", "0"]:
+        return jsonify({"error": "affects_others must be 1 or 0"}), 400
     db = get_db()
     try:
-        cursor = db.execute('''INSERT INTO tickets (ticketer_name, ticketer_email, issue_type, summary, description, status, submission_date)
-                VALUES (?, ?, ?, ?, ?, 'unassigned', ?)''', (body["ticketer_name"], body["ticketer_email"], body["issue_type"], body["summary"], body["description"], datetime.now(timezone.utc).isoformat()))
+        cursor = db.execute('''INSERT INTO tickets (ticketer_name, ticketer_email, issue_type, affects_others, summary, description, status, submission_date)
+                VALUES (?, ?, ?, ?, ?, ?, 'unassigned', ?)''',
+                  (body["ticketer_name"], body["ticketer_email"], body["issue_type"], body["affects_others"] == "1", body["summary"], body["description"], datetime.now(timezone.utc).isoformat()))
         db.commit()
         new_ticket = dict(db.execute('SELECT * FROM tickets WHERE id = ?', (cursor.lastrowid,)).fetchone())
         rebuild_tfidf_cache()

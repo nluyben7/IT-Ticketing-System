@@ -121,7 +121,7 @@ h1 {
     justify-items: center;
 }
 
-@media screen and (min-width: 721px) and (max-width: 900px) {
+/* @media screen and (min-width: 721px) and (max-width: 900px) {
     .ticket-list.grid-view {
         grid-template-columns: 1fr 1fr 1fr; 
         color: red;
@@ -132,7 +132,7 @@ h1 {
         grid-template-columns: 1fr 1fr; 
         color: red;
     } 
-}
+} */
 a{
     width: 100%;
     text-decoration: none;
@@ -626,4 +626,45 @@ label {
     font-size: 1.5rem;
     color: var(--muted);
     margin-top: 5rem;
+}
+
+
+/* --------REsizing for smaller------- */
+
+
+@media screen and (max-width: 900px)
+{
+    .ticket-list.grid-view {
+        grid-template-columns: 1fr 1fr 1fr;
+    }
+}
+
+@media screen and (max-width: 720px)
+{
+    /* .filter-category{
+
+    } */
+
+    .ticket-list.grid-view {
+        grid-template-columns: 1fr 1fr;
+    }
+    .ticket-list.list-view .ticket-card {
+        flex-flow: column nowrap;
+        justify-content: center;
+       
+        text-align: center;
+    }
+    .ticket-list.list-view h3 {
+        width: 80%;
+    }
+    .ticket-list.list-view .ticket-meta {
+        width: 80%;
+        text-align: center;
+    }
+    .ticket-list.list-view .ticket-description {
+        display: block;
+        width: 80%;
+        max-width: 80%; 
+        word-break: normal;
+    }
 }

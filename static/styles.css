@@ -76,7 +76,7 @@ h1 {
 /* ----------FORM STUFF BEGIN---------- */
 #ticket-submission {
     margin: 0 auto;
-    max-width: 700px;
+    max-width: 800px;
     background-color: var(--surface);
     padding: 1.5rem 0.5rem;
     border: 1px solid var(--border);
@@ -97,10 +97,21 @@ fieldset {
     gap: 6px;
     margin-bottom: 1rem;
 }
+.radio-option {
+    display: flex;
+    align-items: center;
+}
+.radio-label {
+    margin-left: 0.5rem;
+    font-size: 1rem;
+    color: var(--text);
+    text-transform: none;
+}
 input, select, textarea {
     background-color: var(--bg);
     border: none;
     color: var(--text);
+    font-size: 1rem;
 }
 input[type="text"],
 input[type="email"],
@@ -117,16 +128,19 @@ textarea:focus{
 }
 select {
     color: var(--text);
+    width: fit-content;
 }
 textarea {
     display: block;
+    resize:vertical;
+    max-height: 20rem;
 }
 label {
     font-family: var(--mono);
-    font-size: 0.68rem;
+    font-size: 0.8rem;
     letter-spacing: 0.1em;
     text-transform: uppercase;
-    color: var(--muted);
+    color: var(--text);
 }
 #priority {
     display: flex;
