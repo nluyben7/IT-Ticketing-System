@@ -51,7 +51,7 @@
                 credentials: 'same-origin'
             });
             if (response.ok) {
-                window.location.href = '/tickets/view';
+                window.location.href = `/profile/${username}`;
             } else {
                 document.getElementById('login-error').style.display = 'block';
             }

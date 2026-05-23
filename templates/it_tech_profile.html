@@ -1,0 +1,93 @@
+<html>
+  <head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <link rel="stylesheet" href="/static/ticketstyles.css">
+    <link rel="stylesheet" href="/static/dashboardstyles.css">
+    <link rel="icon" href="/static/favicon.svg" type="image/svg+xml" >
+  </head>
+  <body>
+    <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem 2rem;">
+      <a class="return-arrow" style="position:static;" href="/tickets/view">← Back to all tickets</a>
+      <h1>{{ specialist.name }} - <span style="color: var(--muted);">{{ specialist.username }}</span></h1>
+      <a class="logout-btn" style="position:static; "onclick="logout()">Logout</a>
+    </div>
+    
+    
+    <section id="overview">
+      <div class="metric-box">
+        <h2>Tickets Claimed:</h2>
+        <p>{{ specialist.tickets_claimed }}</p>
+      </div>
+      <div class="metric-box">
+        <h2>Tickets Active:</h2>
+        <p>{{ specialist.tickets_active }}</p>
+      </div>
+      <div class="metric-box">
+        <h2>Average Resolution Time:</h2>
+        <p>{{ specialist.average_resolution_time | round(2) }} hours</p>
+      </div>
+      <div class="metric-box">
+        <h2>Tickets Claimed:</h2>
+        <p>{{ specialist.tickets_claimed }}</p>
+      </div>
+    </section>
+
+    <div id="profile-tickets-container">
+      <h3 class="profile-section-title">active tickets</h3>
+      <section class="ticket-list list-view">
+          {% for ticket in active_tickets %}
+          <a href="/tickets/view/{{ ticket.id }}">
+              <div class="ticket-card">
+                  <p class="id-badge">ID: {{ ticket.id }}</p>
+                  <div class="ticket-header">
+                      <p class="badge">{{ ticket.issue_type }}</p>
+                      <div class="priority priority-{{ ticket.priority }}">{{ ticket.priority }}</div>
+                  </div>
+                  <h3>{{ ticket.summary }}</h3>
+                  <p class="ticket-meta">{{ ticket.ticketer_name }} — {{ ticket.ticketer_email }}</p>
+              </div>
+          </a>
+          {% else %}
+              <p class="empty-state">No active tickets.</p>
+          {% endfor %}
+      </section>
+
+      <h3 class="profile-section-title">recently resolved tickets</h3>
+      <section class="ticket-list list-view">
+          {% for ticket in recent_resolved_tickets %}
+          <a href="/tickets/view/{{ ticket.id }}">
+              <div class="ticket-card">
+                  <p class="id-badge">ID: {{ ticket.id }}</p>
+                  <div class="ticket-header">
+                      <p class="badge">{{ ticket.issue_type }}</p>
+                  </div>
+                  <h3>{{ ticket.summary }}</h3>
+                  <p class="ticket-meta">{{ ticket.ticketer_name }} — {{ ticket.ticketer_email }}</p>
+                  <p class="ticket-meta">{{ ticket.resolution_date }}</p>
+              </div>
+          </a>
+          {% else %}
+              <p class="empty-state">No resolved tickets.</p>
+          {% endfor %}
+      </section>
+    </div>
+    
+    <script>
+      function logout() {
+      fetch('/logout', { method: 'POST', credentials: 'same-origin' })
+        .then(response => {
+          if (response.ok) {
+            window.location.href = '/';
+          } else {
+            alert('Logout failed. Please try again.');
+          }
+        })
+        .catch(error => {
+          console.error('Error during logout:', error);
+          alert('An error occurred. Please try again.');
+        });
+      }
+    </script>
+  </body>
+</html>

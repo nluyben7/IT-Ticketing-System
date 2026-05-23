@@ -162,7 +162,7 @@ def viewTickets():
     max_page = max(1, -(-total // TICKETS_PER_PAGE))
     if page > max_page:
         return redirect(f'/tickets/view?tab={tab}&page={max_page}')
-    return render_template("tickets.html", tickets=[dict(t) for t in tickets], tab=tab, page_num = page, has_next=(page * TICKETS_PER_PAGE) < total)
+    return render_template("tickets.html", tickets=[dict(t) for t in tickets], tab=tab, page_num = page, has_next=(page * TICKETS_PER_PAGE) < total, username=session.get("username"))
 
 @app.route('/tickets/view/<int:ticket_id>', methods=['GET'])
 def viewTicketById(ticket_id):
@@ -371,6 +371,39 @@ def searchTicketsRoute():
 
 #----------------------------- SEARCH ENDPOINTS END -----------------------------
 
+#----------------------------- IT SPECIALIST PERFORMANCE ENDPOINTS -----------------------------
+@app.route('/profile/<username>', methods=['GET'])
+def viewProfile(username):
+    auth_error = it_only_check()
+    if auth_error:
+        return auth_error
+    if session.get("username") != username:
+        return jsonify({"error": "you can only view your own profile"}), 403
+    db = get_db()
+    specialist_row = db.execute('SELECT username, name, tickets_claimed, tickets_active, tickets_resolved, total_resolution_time_hours FROM it_specialists WHERE username = ?', (username,)).fetchone()
+    #grab some recent tickets
+    active_tickets = db.execute('SELECT * FROM tickets WHERE specialist_username_assigned = ? AND status = "active" ORDER BY assignment_date', (username,)).fetchall()
+    recent_resolved_tickets = db.execute('SELECT * FROM tickets WHERE specialist_username_assigned = ? AND status = "resolved" ORDER BY resolution_date DESC LIMIT 3', (username,)).fetchall()
+    if not active_tickets:
+        active_tickets = []
+    else:        active_tickets = [dict(t) for t in active_tickets]
+    if not recent_resolved_tickets:
+        recent_resolved_tickets = []
+    else:        recent_resolved_tickets = [dict(t) for t in recent_resolved_tickets]
+
+    db.close()
+    if not specialist_row:
+        return f"<p>IT Specialist {username} not found. <a href='/tickets/view'>Go back</a></p>", 404
+    specialist = dict(specialist_row)
+    specialist["average_resolution_time"] = (specialist["total_resolution_time_hours"] / specialist["tickets_resolved"]) if specialist["tickets_resolved"] > 0 else None
+    
+
+
+
+    return render_template("it_tech_profile.html", specialist=specialist, active_tickets=active_tickets, recent_resolved_tickets=recent_resolved_tickets), 200
+
+
+#----------------------------- IT SPECIALIST PERFORMANCE ENDPOINTS END -----------------------------
 
 
 if __name__ == '__main__':

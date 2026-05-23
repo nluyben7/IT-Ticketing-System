@@ -10,7 +10,7 @@
 </head>
 <body>
   <h1 id="page-title"> {{tab | capitalize}} Tickets</h1>
-  <a class="return-arrow" onclick="logout()">← Log Out</a>
+  <a class="return-arrow" href="/profile/{{username}}">← Back to Profile</a>
   <nav id="ticket-list-navbar">
     <div id="navbar-left">
       
@@ -137,20 +137,7 @@
         }
       });
     }
-    function logout() {
-      fetch('/logout', { method: 'POST', credentials: 'same-origin' })
-        .then(response => {
-          if (response.ok) {
-            window.location.href = '/';
-          } else {
-            alert('Logout failed. Please try again.');
-          }
-        })
-        .catch(error => {
-          console.error('Error during logout:', error);
-          alert('An error occurred. Please try again.');
-        });
-    }
+    
     // function showTab(tab) {
     //     switch(tab) {
     //       case 'unassigned':
