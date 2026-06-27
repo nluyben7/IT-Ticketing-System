@@ -10,7 +10,7 @@
     <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem 2rem;">
       <a class="return-arrow" style="position:static;" href="/tickets/view">← Back to all tickets</a>
       <h1>{{ specialist.name }} - <span style="color: var(--muted);">{{ specialist.username }}</span></h1>
-      <a class="logout-btn" style="position:static; "onclick="logout()">Logout</a>
+      <a class="smooth-btn logout-btn" style="position:static;" onclick="document.getElementById('logout-dialog').showModal()">Logout</a>
     </div>
     
     
@@ -73,6 +73,15 @@
       </section>
     </div>
     
+    <dialog id="logout-dialog">
+      <p>Are you sure you want to logout?</p>
+      <div>
+        <button class="smooth-btn" onclick="document.getElementById('logout-dialog').close()">Cancel</button>
+        <button class="smooth-btn logout-btn" onclick="logout()">Logout</button>
+      </div>
+    </dialog>
+
+
     <script>
       function logout() {
       fetch('/logout', { method: 'POST', credentials: 'same-origin' })

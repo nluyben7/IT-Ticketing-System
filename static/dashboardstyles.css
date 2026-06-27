@@ -72,7 +72,7 @@ body::before {
     text-transform: capitalize;
 }
 
-.logout-btn {
+.smooth-btn {
     display: inline-block;
     width: fit-content;
     height: fit-content;
@@ -80,16 +80,33 @@ body::before {
     margin: 1rem;
     border: 2px solid var(--border);
     background: var(--surface);
-    color: var(--text);
+    color: var(----muted);
     text-decoration: none;
     border-radius: 8px;
     z-index: 99;
     transition: all 0.15s ease;
 }
 
+.smooth-btn:hover {
+    color: var(----text);
+    border-color: var(--text);
+    cursor: pointer;
+    transform: translateY(-2px);
+}
+
 .logout-btn:hover {
     color: var(--danger);
     border-color: var(--danger);
-    cursor: pointer;
-    transform: translateY(-2px);
+}
+
+#logout-dialog::backdrop {
+    background: rgba(0, 0, 0, 0.5);
+}
+#logout-dialog {
+    border: none;
+    border-radius: 8px;
+    padding: 1rem;
+    margin: auto;
+    background: var(--surface);
+    color: var(--text);
 }
